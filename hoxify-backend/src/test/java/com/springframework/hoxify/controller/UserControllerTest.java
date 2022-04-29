@@ -2,6 +2,7 @@ package com.springframework.hoxify.controller;
 
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
+import com.springframework.hoxify.shared.GenericResponse;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -67,5 +68,12 @@ public class UserControllerTest {
         User user = createValidUser();
         ResponseEntity<Object> response = testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
         assertThat(userRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    public void postUser_whenUserIsValid_receiveSuccessMessage() {
+        User user = createValidUser();
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+        assertThat(response.getBody().getMessage()).isNotNull();
     }
 }
