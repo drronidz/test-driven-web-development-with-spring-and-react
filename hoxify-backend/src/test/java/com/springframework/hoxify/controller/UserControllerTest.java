@@ -1,5 +1,6 @@
 package com.springframework.hoxify.controller;
 
+import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.shared.GenericResponse;
@@ -193,6 +194,17 @@ public class UserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    public void postUser_whenUserIsInvalid_receiveApiError() {
+        User user = new User();
+        ResponseEntity<ApiError> response = postSignUp(user, ApiError.class);
+        assertThat(response.getBody().getUrl()).isEqualTo(API_1_0_USERS);
+    }
 
-
+    @Test
+    public void postUser_whenUserIsInvalid_receiveApiErrorWithValidationError() {
+        User user = new User();
+        ResponseEntity<ApiError> response = postSignUp(user, ApiError.class);
+        assertThat(response.getBody().getValidationErrors().size()).isEqualTo(3);
+    }
 }
