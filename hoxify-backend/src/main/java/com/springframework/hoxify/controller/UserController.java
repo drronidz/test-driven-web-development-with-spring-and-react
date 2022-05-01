@@ -7,6 +7,8 @@ Author Name : @ DRRONIDZ
 DATE : 4/29/2022 3:44 PM
 */
 
+import javax.validation.Valid;
+
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
@@ -24,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/api/1.0/users")
-    GenericResponse createUser(@RequestBody User user) {
+    GenericResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenericResponse("User saved Successfully !");
     }
