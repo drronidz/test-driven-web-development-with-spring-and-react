@@ -2,15 +2,18 @@
 import React from "react";
 // Components
 // Styles
-
-import './App.css';
 import UserSignUpPage from "./pages/UserSignupPage";
+import * as apiCalls from "./api/apiCalls";
 
+
+const actions = {
+    postSignUp: apiCalls.signUp
+}
 
 function App() {
   return (
     <div className="App">
-      <UserSignUpPage/>
+      <UserSignUpPage actions={actions}/>
     </div>
   );
 }
