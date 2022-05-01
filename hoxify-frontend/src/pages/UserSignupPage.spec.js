@@ -68,6 +68,28 @@ describe('UserSignUpPage', () => {
             }
         }
 
+        let button, displayNameInput, usernameInput, passwordInput, passwordConfirmationInput
+
+        const setupForSubmit = (props) => {
+            const rendered = render(<UserSignUpPage {...props}/>)
+
+            const { container, queryByPlaceholderText } = rendered
+            displayNameInput  = queryByPlaceholderText('Your display name')
+            usernameInput = queryByPlaceholderText('Your username')
+            passwordInput = queryByPlaceholderText('Your password')
+            passwordConfirmationInput = queryByPlaceholderText('Your password confirmation')
+
+
+            fireEvent.change(displayNameInput, changeEvent('my-display-name'))
+            fireEvent.change(usernameInput, changeEvent('my-user-name'))
+            fireEvent.change(passwordInput, changeEvent('my-password'))
+            fireEvent.change(passwordConfirmationInput, changeEvent('my-password-confirmation'))
+
+            button = container.querySelector('button')
+
+            return rendered
+        }
+
         it('sets the displayName value into state', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const displayNameInput  = queryByPlaceholderText('Your display name')
@@ -94,11 +116,39 @@ describe('UserSignUpPage', () => {
 
         it('sets password confirmation value into state', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
-            const passwordConfirmationInput = queryByPlaceholderText('Password confirmation')
+            const passwordConfirmationInput = queryByPlaceholderText('Your password confirmation')
 
             fireEvent.change(passwordConfirmationInput, changeEvent('my-password-confirmation'))
             expect(passwordConfirmationInput).toHaveValue('my-password-confirmation')
         })
 
+        it('calls postSignUp when the fields are valid and the actions are provided in props', () => {
+            const actions = {
+                postSignUp: jest.fn().mockRejectedValueOnce({})
+            }
+            setupForSubmit({ actions })
+            fireEvent.click(button)
+            expect(actions.postSignUp).toHaveBeenCalledTimes(1)
+        })
+
+        it('does not throw exception when clicking the button when actions are provided in props', () => {
+            setupForSubmit()
+            expect(() => fireEvent.click(button)).not.toThrow()
+        })
+
+        it('calls post with user body when the fields are valid', () => {
+            const actions = {
+                postSignUp: jest.fn().mockRejectedValueOnce({})
+            }
+            setupForSubmit({ actions })
+            fireEvent.click(button)
+            const expectedUserObject = {
+                displayName:'my-display-name',
+                username:'my-user-name',
+                password:'my-password',
+                passwordConfirmation:'my-password-confirmation'
+            }
+            expect(actions.postSignUp).toHaveBeenCalledWith(expectedUserObject)
+        })
     })
 })

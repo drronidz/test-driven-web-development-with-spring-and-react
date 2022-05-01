@@ -37,6 +37,16 @@ export class UserSignUpPage extends React.Component{
         })
     }
 
+    onClickSignUp = () => {
+        const user = {
+            displayName: this.state.displayName,
+            username: this.state.username,
+            password: this.state.password,
+            passwordConfirmation: this.state.passwordConfirmation
+        }
+        this.props.actions.postSignUp(user)
+    }
+
 
     render() {
         return (
@@ -44,7 +54,6 @@ export class UserSignUpPage extends React.Component{
                 <h1>Sign Up</h1>
                 <div>
                     <input
-                        type="text"
                         placeholder="Your display name"
                         value={this.state.displayName}
                         onChange={this.onChangeDisplayName}
@@ -52,16 +61,14 @@ export class UserSignUpPage extends React.Component{
                 </div>
                 <div>
                     <input
-                        type="text"
                         placeholder="Your username"
                         value={this.state.username}
-                        onChange={this.onChangeUsername}
-                    />
+                        onChange={this.onChangeUsername}/>
                 </div>
                 <div>
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Your password"
                         value={this.state.password}
                         onChange={this.onChangePassword}
                     />
@@ -69,16 +76,24 @@ export class UserSignUpPage extends React.Component{
                 <div>
                     <input
                         type="password"
-                        placeholder="Password confirmation"
+                        placeholder="Your password confirmation"
                         value={this.state.passwordConfirmation}
                         onChange={this.onChangePasswordConfirmation}
                     />
                 </div>
                 <div>
-                    <button>Sign Up</button>
+                    <button onClick={this.onClickSignUp}>Sign Up</button>
                 </div>
             </div>
         )
+    }
+}
+
+UserSignUpPage.defaultProps = {
+    actions: {
+        postSignUp: () => new Promise((resolve, reject) => {
+            resolve({})
+        })
     }
 }
 
