@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, cleanup } from '@testing-library/react'
+import { render, cleanup, waitForElementToBeRemoved } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import UserSignUpPage from "./UserSignupPage";
 import {fireEvent} from "@testing-library/dom";
@@ -66,6 +66,30 @@ describe('UserSignUpPage', () => {
                     value: content
                 }
             }
+        }
+
+        const mockAsyncDelayedResolve = () => {
+            return jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve({})
+                    }, 300)
+                })
+            })
+        }
+
+        const mockAsyncDelayedReject = () => {
+            return jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        reject({
+                            response: {
+                                data: {}
+                            }
+                        })
+                    }, 300)
+                })
+            })
         }
 
         let button, displayNameInput, usernameInput, passwordInput, passwordConfirmationInput
@@ -150,5 +174,54 @@ describe('UserSignUpPage', () => {
             }
             expect(actions.postSignUp).toHaveBeenCalledWith(expectedUserObject)
         })
+
+        it('does not allow user to click the Sign Up button when there is an ongoing api call', () => {
+            const actions = {
+                postSignUp: mockAsyncDelayedResolve()
+            }
+            setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            fireEvent.click(button)
+            expect(actions.postSignUp).toHaveBeenCalledTimes(1)
+        })
+
+        it('displays a Spinner when there is an ongoing API Call', () => {
+            const actions = {
+                postSignUp: mockAsyncDelayedResolve()
+            }
+            const { queryByText } = setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            const spinner = queryByText('Loading...')
+            expect(spinner).toBeInTheDocument()
+        })
+
+        it('hides a Spinner after API call finishes Successfully!', async () => {
+            const actions = {
+                postSignUp: mockAsyncDelayedResolve()
+            }
+            const { queryByText } = setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            // await waitForElementToBeRemoved()
+
+            const spinner = queryByText('Loading...')
+            expect(spinner).not.toBeInTheDocument()
+        })
+
+        it('hides a Spinner after API call finishes with Error', async () => {
+            const actions = {
+                postSignUp: mockAsyncDelayedReject()
+            }
+            const { queryByText } = setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            // await waitForElementToBeRemoved()
+
+            const spinner = queryByText('Loading...')
+            expect(spinner).not.toBeInTheDocument()
+        })
     })
+
 })

@@ -6,7 +6,8 @@ export class UserSignUpPage extends React.Component{
         displayName: '',
         username: '',
         password: '',
-        passwordConfirmation:''
+        passwordConfirmation:'',
+        pendingAPICall: false
     }
 
     onChangeDisplayName = (event) => {
@@ -44,11 +45,32 @@ export class UserSignUpPage extends React.Component{
             password: this.state.password,
             passwordConfirmation: this.state.passwordConfirmation
         }
+
+        this.setState({
+            pendingAPICall : true
+        })
+
         this.props.actions.postSignUp(user)
+            .then((response) => {
+                this.setState({
+                    pendingAPICall: false
+                })
+            })
+            .catch((error) => {
+                this.setState({
+                    pendingAPICall: false
+                })
+            })
     }
 
 
+
     render() {
+        const spinner =
+            <div className="spinner-border text-light spinner-border-sm mr-sm-1">
+                <span className="sr-only"/>
+            </div>
+
         return (
             <div className="container">
                 <h1 className="text-center">Sign Up</h1>
@@ -90,7 +112,13 @@ export class UserSignUpPage extends React.Component{
                     />
                 </div>
                 <div className="text-center">
-                    <button className="btn btn-primary" onClick={this.onClickSignUp}>Sign Up</button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={this.onClickSignUp}
+                        disabled={this.state.pendingAPICall}>
+                        {this.state.pendingAPICall && spinner}
+                        Sign Up
+                    </button>
                 </div>
             </div>
         )
