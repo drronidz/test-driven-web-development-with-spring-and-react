@@ -7,6 +7,7 @@ Author Name : @ DRRONIDZ
 DATE : 4/29/2022 4:15 PM
 */
 
+import com.springframework.hoxify.exception.DuplicateUsernameException;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,13 @@ public class UserService {
     }
 
     public User save (User user) {
+        // Checking if we have user in Database with this username ...
+        User userInDB = userRepository.findByUsername(user.getUsername());
+
+        if (userInDB != null) {
+            throw new DuplicateUsernameException();
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

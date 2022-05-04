@@ -53,9 +53,9 @@ public class UserControllerTest {
 
     private User createValidUser() {
         User user = new User();
-        user.setUsername("test-user");
-        user.setDisplayName("test-display");
-        user.setPassword("PAssword");
+        user.setUsername("test-username");
+        user.setDisplayName("test-display-name");
+        user.setPassword("PAssword12");
         return user;
     }
 
@@ -243,5 +243,24 @@ public class UserControllerTest {
         ResponseEntity<ApiError> response = postSignUp(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
         assertThat(validationErrors.get("password")).isEqualTo("Password must contain at least one uppercase, one lowercase letter and one number");
+    }
+
+    @Test
+    public void postUser_whenAnotherUserHasAnExistingUsername_receiveMessageOfDuplicateUsername() {
+        userRepository.save(createValidUser());
+
+        User user = createValidUser();
+        ResponseEntity<ApiError> response = postSignUp(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        assertThat(validationErrors.get("username")).isEqualTo("This name is already in use");
+    }
+
+    @Test
+    public void postUser_whenAnotherUserHasAnExistingUsername_receiveBadRequest() {
+        userRepository.save(createValidUser());
+
+        User user = createValidUser();
+        ResponseEntity<Object> response = postSignUp(user, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
