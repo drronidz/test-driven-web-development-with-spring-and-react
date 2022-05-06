@@ -9,34 +9,62 @@ export class UserSignUpPage extends React.Component{
         password: '',
         passwordConfirmation:'',
         pendingAPICall: false,
-        errors: {}
+        errors: {},
+        passwordRepeatConfirmed: true
     }
 
     onChangeDisplayName = (event) => {
         const value = event.target.value
+        const errors = {
+            ...this.state.errors
+        }
+        delete errors.displayName
         this.setState({
-            displayName : value
+            displayName: value,
+            errors
         })
     }
 
     onChangeUsername = (event) => {
         const value = event.target.value
+        const errors = {
+            ...this.state.errors
+        }
+        delete errors.username
         this.setState({
-            username : value
+            username : value,
+            errors
         })
     }
 
     onChangePassword = (event) => {
         const value = event.target.value
+        const passwordRepeatConfirmed = this.state.passwordConfirmation === value
+
+        const errors = {
+            ...this.state.errors,
+            passwordConfirmation: passwordRepeatConfirmed ? '' : 'Does not match to password'
+        }
+        delete errors.password
         this.setState({
-            password : value
+            password : value,
+            passwordRepeatConfirmed,
+            errors
         })
     }
 
     onChangePasswordConfirmation = (event) => {
         const value = event.target.value
+        const passwordRepeatConfirmed = this.state.password === value
+        const errors = {
+            ...this.state.errors,
+            passwordConfirmation: passwordRepeatConfirmed ? '' : 'Does not match to password'
+        }
+
         this.setState({
-            passwordConfirmation : value
+            passwordConfirmation : value,
+            passwordRepeatConfirmed,
+            errors
         })
     }
 
@@ -127,7 +155,7 @@ export class UserSignUpPage extends React.Component{
                     <button
                         className="btn btn-primary"
                         onClick={this.onClickSignUp}
-                        disabled={this.state.pendingAPICall}>
+                        disabled={this.state.pendingAPICall || !this.state.passwordRepeatConfirmed}>
                         {this.state.pendingAPICall && spinner}
                         Sign Up
                     </button>
