@@ -7,7 +7,8 @@ export class UserSignUpPage extends React.Component{
         username: '',
         password: '',
         passwordConfirmation:'',
-        pendingAPICall: false
+        pendingAPICall: false,
+        errors: {}
     }
 
     onChangeDisplayName = (event) => {
@@ -56,9 +57,14 @@ export class UserSignUpPage extends React.Component{
                     pendingAPICall: false
                 })
             })
-            .catch((error) => {
+            .catch((apiError) => {
+                let errors = { ...this.state.errors }
+                if (apiError.response.data && apiError.response.data.validationErrors) {
+                    errors = { ...apiError.response.data.validationErrors }
+                }
                 this.setState({
-                    pendingAPICall: false
+                    pendingAPICall: false,
+                    errors: errors
                 })
             })
     }
@@ -82,6 +88,9 @@ export class UserSignUpPage extends React.Component{
                         value={this.state.displayName}
                         onChange={this.onChangeDisplayName}
                     />
+                    <div className="invalid-feedback">
+                        {this.state.errors.displayName}
+                    </div>
                 </div>
                 <div className="col-12 mb-3">
                     <label className="float-start">Username</label>
