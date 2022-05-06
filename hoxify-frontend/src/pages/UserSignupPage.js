@@ -1,4 +1,5 @@
 import React from "react";
+import Input from "../components/input/Input";
 
 export class UserSignUpPage extends React.Component{
 
@@ -81,43 +82,45 @@ export class UserSignUpPage extends React.Component{
             <div className="container">
                 <h1 className="text-center">Sign Up</h1>
                 <div className="col-12 mb-3">
-                    <label className="float-start">Display Name</label>
-                    <input
-                        className="form-control"
+                    <Input
+                        label="Display Name"
                         placeholder="Your display name"
                         value={this.state.displayName}
                         onChange={this.onChangeDisplayName}
+                        hasError={this.state.errors.displayName && true}
+                        error={this.state.errors.displayName}
                     />
-                    <div className="invalid-feedback">
-                        {this.state.errors.displayName}
-                    </div>
                 </div>
                 <div className="col-12 mb-3">
-                    <label className="float-start">Username</label>
-                    <input
-                        className="form-control"
+                    <Input
+                        label="Username"
                         placeholder="Your username"
                         value={this.state.username}
-                        onChange={this.onChangeUsername}/>
+                        onChange={this.onChangeUsername}
+                        hasError={this.state.errors.username && true}
+                        error={this.state.errors.username}
+                    />
                 </div>
                 <div className="col-12 mb-3">
-                    <label className="float-start">Password</label>
-                    <input
-                        className="form-control"
+                    <Input
+                        label="Password"
                         type="password"
                         placeholder="Your password"
                         value={this.state.password}
                         onChange={this.onChangePassword}
+                        hasError={this.state.errors.password && true}
+                        error={this.state.errors.password}
                     />
                 </div>
                 <div className="col-12 mb-3">
-                    <label className="float-start">Password Confirmation</label>
-                    <input
-                        className="form-control"
+                    <Input
+                        label="Password Confirmation"
                         type="password"
                         placeholder="Your password confirmation"
                         value={this.state.passwordConfirmation}
                         onChange={this.onChangePasswordConfirmation}
+                        hasError={this.state.errors.passwordConfirmation && true}
+                        error={this.state.errors.passwordConfirmation}
                     />
                 </div>
                 <div className="text-center">
