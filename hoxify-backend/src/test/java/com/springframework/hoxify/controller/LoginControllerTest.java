@@ -1,5 +1,6 @@
 package com.springframework.hoxify.controller;
 
+import com.springframework.hoxify.error.ApiError;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +49,30 @@ public class LoginControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
+
     @Test
-    public void postLogin_withIncorrectUserCredentials_receiveUnauthorized() {
+    public void postLogin_withIncorrectUserCredentials_receiveApiError() {
         authenticate();
         ResponseEntity<Object> response = login(Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
+    @Test
+    public void postLogin_withoutUserCredentials_receiveApiError() {
+        ResponseEntity<ApiError> response = login(ApiError.class);
+        assertThat(response.getBody().getUrl()).isEqualTo(API_1_0_LOGIN);
+    }
 
+    @Test
+    public void postLogin_withoutUserCredentials_receiveApiErrorWithoutValidationErrors() {
+        ResponseEntity<String> response = login(String.class);
+        assertThat(response.getBody().contains("validationErrors")).isFalse();
+    }
+
+    @Test
+    public void postLogin_withoutIncorrectCredentials_receiveUnauthorizedWithoutWWWAuthenticationHeader() {
+        authenticate();
+        ResponseEntity<Object> response = login(Object.class);
+        assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
+    }
 }
