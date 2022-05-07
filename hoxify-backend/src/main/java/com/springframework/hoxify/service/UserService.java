@@ -10,7 +10,7 @@ DATE : 4/29/2022 4:15 PM
 import com.springframework.hoxify.exception.DuplicateUsernameException;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +18,11 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    private BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User save (User user) {

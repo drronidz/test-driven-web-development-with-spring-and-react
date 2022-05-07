@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.springframework.hoxify.tools.TestTools.createValidUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,14 +51,6 @@ public class UserControllerTest {
         userRepository.deleteAll();
     }
 
-
-    private User createValidUser() {
-        User user = new User();
-        user.setUsername("test-username");
-        user.setDisplayName("test-display-name");
-        user.setPassword("PAssword12");
-        return user;
-    }
 
 
     public <T> ResponseEntity<T> postSignUp(Object request, Class<T> response) {

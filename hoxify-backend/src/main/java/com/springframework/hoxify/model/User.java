@@ -7,18 +7,25 @@ Author Name : @ DRRONIDZ
 DATE : 4/29/2022 3:49 PM
 */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.springframework.hoxify.annotation.UniqueUsername;
+import com.springframework.hoxify.security.CustomAuthorityDeserializer;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Collection;
 
 @Data
 @Entity
 //@Table(uniqueConstraints = @UniqueConstraint(columnNames = "username"))
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue
@@ -38,4 +45,34 @@ public class User {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hoxify.constraints.password.Pattern.message}")
     private String password;
 
+    @Override
+    @JsonDeserialize(using = CustomAuthorityDeserializer.class)
+    @Transient
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return AuthorityUtils.createAuthorityList("Role_USER");
+    }
+
+    @Override
+    @Transient
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isEnabled() {
+        return true;
+    }
 }

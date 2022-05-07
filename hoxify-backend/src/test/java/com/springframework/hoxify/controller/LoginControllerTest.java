@@ -1,6 +1,11 @@
 package com.springframework.hoxify.controller;
 
 import com.springframework.hoxify.error.ApiError;
+import com.springframework.hoxify.model.User;
+import com.springframework.hoxify.repository.UserRepository;
+import com.springframework.hoxify.service.UserService;
+import com.springframework.hoxify.tools.TestTools;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static com.springframework.hoxify.tools.TestTools.createValidUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -32,6 +38,18 @@ public class LoginControllerTest {
     @Autowired
     TestRestTemplate testRestTemplate;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
+
+    @Before
+    public void cleanup() {
+        userRepository.deleteAll();
+        testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
     public <T>ResponseEntity<T> login(Class<T> responseType) {
         return testRestTemplate.postForEntity(API_1_0_LOGIN, null, responseType);
     }
@@ -40,7 +58,7 @@ public class LoginControllerTest {
         testRestTemplate
                 .getRestTemplate()
                 .getInterceptors()
-                .add(new BasicAuthenticationInterceptor("test-user", "PAssword"));
+                .add(new BasicAuthenticationInterceptor(TestTools.TEST_USERNAME, TestTools.TEST_PASSWORD));
     }
 
     @Test
@@ -74,5 +92,13 @@ public class LoginControllerTest {
         authenticate();
         ResponseEntity<Object> response = login(Object.class);
         assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
+    }
+
+    @Test
+    public void postLogin_withValidCredentials_receiveOK() {
+        userService.save(createValidUser());
+        authenticate();
+        ResponseEntity<Object> response = login(Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
