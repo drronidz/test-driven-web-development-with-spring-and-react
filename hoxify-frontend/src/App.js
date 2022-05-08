@@ -2,8 +2,9 @@
 import React from "react";
 // Components
 // Styles
-import UserSignUpPage from "./pages/UserSignupPage";
+import UserSignUpPage from "./pages/UserSignupPage/UserSignupPage";
 import * as apiCalls from "./api/apiCalls";
+import LoginPage from "./pages/LoginPage/LoginPage";
 
 
 const actions = {
@@ -13,7 +14,8 @@ const actions = {
 function App() {
   return (
     <div className="App">
-      <UserSignUpPage actions={actions}/>
+        <LoginPage/>
+      {/*<UserSignUpPage actions={actions}/>*/}
     </div>
   );
 }
