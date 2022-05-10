@@ -51,6 +51,30 @@ describe('Interactions', () => {
         }
     }
 
+    const mockAsyncDelayed = () => {
+        return jest.fn().mockImplementation(() => {
+            return new Promise(((resolve, reject) => {
+                setTimeout(() => {
+                    resolve({})
+                }, 300)
+            }))
+        })
+    }
+
+    const mockAsyncDelayedReject = () => {
+        return jest.fn().mockImplementation(() => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject({
+                        response: {
+                            data: {}
+                        }
+                    })
+                }, 300)
+            })
+        })
+    }
+
     let usernameInput, passwordInput, button
 
 
@@ -187,6 +211,52 @@ describe('Interactions', () => {
         await waitFor(() => {
             const alert = queryByText('Login failed')
             expect(alert).toBeInTheDocument()
+        })
+    })
+
+    it('does not allow user to click the Login button when there is an ongoing api call', () => {
+        const actions = {
+            postLogin: mockAsyncDelayed()
+        }
+        setupForSubmit({ actions })
+        fireEvent.click(button)
+        fireEvent.click(button)
+        expect(actions.postLogin).toHaveBeenCalledTimes(1)
+    })
+
+    it ('displays spinner when there is an ongoing api call', () => {
+        const actions = {
+            postLogin: mockAsyncDelayed()
+        }
+        const { queryByText } = setupForSubmit({ actions })
+        fireEvent.click(button)
+
+        const spinner = queryByText('Loading...')
+        expect(spinner).toBeInTheDocument()
+    })
+
+    it ('hides spinner after api call finishes successfully',async () => {
+        const actions = {
+            postLogin: mockAsyncDelayed()
+        }
+        const { queryByText } = setupForSubmit({ actions })
+        fireEvent.click(button)
+        await waitFor(() => {
+            const spinner = queryByText('Loading...')
+            expect(spinner).not.toBeInTheDocument()
+        })
+    })
+
+    it('hides a Spinner after API call finishes with Error', async () => {
+        const actions = {
+            postLogin: mockAsyncDelayedReject()
+        }
+        const { queryByText } = setupForSubmit({ actions })
+        fireEvent.click(button)
+
+        await waitFor(() => {
+            const spinner = queryByText('Loading...')
+            expect(spinner).not.toBeInTheDocument()
         })
     })
 })

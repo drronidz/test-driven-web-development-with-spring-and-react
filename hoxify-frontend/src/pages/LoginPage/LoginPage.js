@@ -1,11 +1,13 @@
 import React from "react";
 import Input from "../../components/input/Input";
+import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
 
 export class LoginPage extends React.Component {
     state = {
         username: '',
         password: '',
-        apiError: undefined
+        apiError: undefined,
+        pendingAPICall: false
     }
 
     onChangeUsername = (event) => {
@@ -31,12 +33,23 @@ export class LoginPage extends React.Component {
             username: this.state.username,
             password: this.state.password
         }
+
+        this.setState({
+            pendingAPICall: true
+        })
+
         this.props.actions
             .postLogin(body)
+            .then((response) => {
+                this.setState({
+                    pendingAPICall: false
+                })
+            })
             .catch(error => {
                 if (error.response) {
                     this.setState({
-                        apiError: error.response.data.message
+                        apiError: error.response.data.message,
+                        pendingAPICall: false
                     })
                 }
             })
@@ -57,8 +70,7 @@ export class LoginPage extends React.Component {
                         label="Username"
                         placeholder="Your username"
                         value={this.state.username}
-                        onChange={this.onChangeUsername}
-                    />
+                        onChange={this.onChangeUsername}/>
                 </div>
                 <div className="col-12 mb-3">
                     <Input
@@ -66,18 +78,18 @@ export class LoginPage extends React.Component {
                         placeholder="Your password"
                         type="password"
                         value={this.state.password}
-                        onChange={this.onChangePassword}
-                    />
+                        onChange={this.onChangePassword}/>
                 </div>
                 {this.state.apiError && (
                     <div className="col-12 mb-3">
                         <div className="alert alert-danger" >{this.state.apiError}</div>
                     </div>)}
                 <div className="text-center">
-                    <button
-                        className="btn btn-primary"
-                        disabled={disableSubmit}
-                        onClick={this.onClickLogin}>Login</button>
+                    <ButtonWithProgress
+                        onClick={this.onClickLogin}
+                        disabled={disableSubmit || this.state.pendingAPICall}
+                        text="Login"
+                        pendingAPICall={this.state.pendingAPICall}/>
                 </div>
             </div>
         )

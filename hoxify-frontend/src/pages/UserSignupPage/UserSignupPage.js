@@ -1,5 +1,7 @@
 import React from "react";
 import Input from "../../components/input/Input";
+import Spinner from "../../components/spinner/Spinner";
+import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
 
 export class UserSignUpPage extends React.Component{
 
@@ -101,11 +103,6 @@ export class UserSignUpPage extends React.Component{
 
 
     render() {
-        const spinner =
-            <div className="spinner-border text-light spinner-border-sm mr-sm-1">
-                <span className="sr-only"/>
-            </div>
-
         return (
             <div className="container">
                 <h1 className="text-center">Sign Up</h1>
@@ -152,13 +149,12 @@ export class UserSignUpPage extends React.Component{
                     />
                 </div>
                 <div className="text-center">
-                    <button
-                        className="btn btn-primary"
-                        onClick={this.onClickSignUp}
-                        disabled={this.state.pendingAPICall || !this.state.passwordRepeatConfirmed}>
-                        {this.state.pendingAPICall && spinner}
-                        Sign Up
-                    </button>
+                  <ButtonWithProgress
+                      onClick={this.onClickSignUp}
+                      disabled={this.state.pendingAPICall || !this.state.passwordRepeatConfirmed}
+                      pendingAPICall={this.state.pendingAPICall}
+                      text="Sign up"
+                  />
                 </div>
             </div>
         )
