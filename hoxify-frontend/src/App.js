@@ -8,13 +8,14 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 
 
 const actions = {
-    postSignUp: apiCalls.signUp
+    postSignUp: apiCalls.signUp,
+    postLogin : apiCalls.login
 }
 
 function App() {
   return (
     <div className="App">
-        <LoginPage/>
+        <LoginPage actions={actions}/>
       {/*<UserSignUpPage actions={actions}/>*/}
     </div>
   );
