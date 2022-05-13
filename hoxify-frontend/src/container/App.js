@@ -22,7 +22,8 @@ function App() {
             <Route
                 path="/login"
                 component={(props) => <LoginPage {...props} actions={actions} />}/>
-            <Route path="/signup" component={UserSignUpPage}/>
+            <Route path="/signup"
+                   component={(props) => <UserSignUpPage {...props} actions={actions}/>}/>
             <Route path="/:username" component={UserPage}/>
             <Route exact path="/" component={HomePage}/>
         </Switch>

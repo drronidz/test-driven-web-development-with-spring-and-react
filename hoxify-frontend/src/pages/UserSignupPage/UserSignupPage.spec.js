@@ -307,7 +307,7 @@ describe('UserSignUpPage', () => {
                     response: {
                         data: {
                             validationErrors: {
-                                displayName: 'Cannot be null'
+                                 displayName: 'Cannot be null'
                             }
                         }
                     }
@@ -348,6 +348,23 @@ describe('UserSignUpPage', () => {
 
             const errorMessage = queryByText('Cannot be null')
             expect(errorMessage).not.toBeInTheDocument()
+        })
+
+
+        it ('redirects to home Page after successful Sign Up', async () => {
+            const actions = {
+                postSignUp: jest.fn().mockResolvedValue({})
+            }
+            const history = {
+                push: jest.fn()
+            }
+            setupForSubmit({ actions, history })
+            fireEvent.click(button)
+            await waitFor(() => {
+                expect(history.push).toHaveBeenCalledWith('/')
+            })
+
+            expect(history.push).toHaveBeenCalledTimes(1)
         })
     })
 
