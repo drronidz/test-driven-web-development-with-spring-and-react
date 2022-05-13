@@ -19,7 +19,9 @@ function App() {
   return (
     <div className="container">
         <Switch>
-            <Route path="/login" component={LoginPage}/>
+            <Route
+                path="/login"
+                component={(props) => <LoginPage {...props} actions={actions} />}/>
             <Route path="/signup" component={UserSignUpPage}/>
             <Route path="/:username" component={UserPage}/>
             <Route exact path="/" component={HomePage}/>

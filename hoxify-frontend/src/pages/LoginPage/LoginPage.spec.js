@@ -259,6 +259,25 @@ describe('Interactions', () => {
             expect(spinner).not.toBeInTheDocument()
         })
     })
+
+    it ('redirects to home Page after successful login', async () => {
+        const actions = {
+            postLogin: jest.fn().mockResolvedValue({})
+        }
+
+        const history = {
+            push: jest.fn()
+        }
+
+        setupForSubmit({ actions, history })
+        fireEvent.click(button)
+
+        await waitFor(() => {
+            expect(history.push).toHaveBeenCalledWith('/')
+        })
+
+        expect(history.push).toHaveBeenCalledTimes(1)
+    })
 })
 
 
