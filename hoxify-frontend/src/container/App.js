@@ -8,6 +8,7 @@ import LoginPage from "../pages/LoginPage/LoginPage";
 import {Route, Switch} from "react-router-dom";
 import HomePage from "../pages/HomePage/HomePage";
 import UserPage from "../pages/UserPage/UserPage";
+import NavigationBar from "../components/NavigationBar/NavigationBar";
 
 
 const actions = {
@@ -17,13 +18,16 @@ const actions = {
 
 function App() {
   return (
+
     <div className="container">
+        <NavigationBar/>
         <Switch>
             <Route
                 path="/login"
                 component={(props) => <LoginPage {...props} actions={actions} />}/>
-            <Route path="/signup"
-                   component={(props) => <UserSignUpPage {...props} actions={actions}/>}/>
+            <Route
+                path="/signup"
+                component={(props) => <UserSignUpPage {...props} actions={actions}/>}/>
             <Route path="/:username" component={UserPage}/>
             <Route exact path="/" component={HomePage}/>
         </Switch>
