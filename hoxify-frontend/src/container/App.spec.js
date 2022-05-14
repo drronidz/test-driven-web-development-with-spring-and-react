@@ -1,10 +1,11 @@
 import React from "react";
-import {fireEvent, render} from "@testing-library/react";
+import {fireEvent, render, waitFor} from "@testing-library/react";
 import App from "./App";
 import {MemoryRouter} from "react-router-dom";
 import {Provider} from "react-redux";
 import {createStore} from "redux";
 import authReducer from "../redux/authReducer";
+import axios from "axios";
 
 
 const setup = (path) => {
@@ -93,5 +94,33 @@ describe('App', () => {
         const logo = container.querySelector('img')
         fireEvent.click(logo)
         expect(queryByTestId('homepage')).toBeInTheDocument()
+    })
+
+    it('displays My Profile on Navigation Bar after login success', async () => {
+        const { queryByPlaceholderText, container, queryByText } = setup('/login')
+        const changeEvent = (content) => {
+            return {
+                target: {
+                    value: content
+                }
+            }
+        }
+        const usernameInput = queryByPlaceholderText('Your username')
+        fireEvent.change(usernameInput, changeEvent('my-user-name'))
+        const passwordInput = queryByPlaceholderText('Your password')
+        fireEvent.change(usernameInput, changeEvent('AZerty12'))
+        const button = container.querySelector('button')
+
+        axios.post = jest.fn().mockResolvedValue({
+            data: {
+                id: 1,
+                username: 'user1',
+                displayName: 'dispaly1',
+                image: 'profile1.png'
+            }
+        })
+        fireEvent.click(button)
+        const myProfileLink = await waitFor(() => {queryByText('My Profile')})
+        expect(myProfileLink).toBeInTheDocument()
     })
 })
