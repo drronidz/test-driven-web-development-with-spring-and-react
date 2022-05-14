@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from '@testing-library/react'
+import {fireEvent, render} from '@testing-library/react'
 import NavigationBar from './NavigationBar'
 import {MemoryRouter} from "react-router-dom";
 import { Provider } from 'react-redux'
@@ -73,6 +73,16 @@ describe('Navigation Bar', () => {
             const { queryByText } = setup(loggedInState)
             const profileLink = queryByText('My Profile')
             expect(profileLink.getAttribute('href')).toBe('/user1')
+        })
+    })
+
+    describe('Interactions', () => {
+        it('displays the login and sign up links when user clicks logout', () => {
+            const { queryByText } = setup(loggedInState)
+            const logoutLink = queryByText('Logout')
+            fireEvent.click(logoutLink)
+            const loginLink = queryByText('Login')
+            expect(loginLink).toBeInTheDocument()
         })
     })
 })

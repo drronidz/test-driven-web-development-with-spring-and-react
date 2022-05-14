@@ -4,8 +4,9 @@ import './index.css';
 import App from './container/App';
 import {HashRouter} from "react-router-dom";
 import { Provider } from 'react-redux'
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import authReducer from "./redux/authReducer";
+import logger from 'redux-logger'
 
 const loggedInState = {
     id: 1,
@@ -16,7 +17,7 @@ const loggedInState = {
     isLoggedIn: true
 }
 
-const store = createStore(authReducer, loggedInState)
+const store = createStore(authReducer, loggedInState, applyMiddleware(logger))
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
