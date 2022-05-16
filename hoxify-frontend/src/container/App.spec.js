@@ -159,4 +159,64 @@ describe('App', () => {
             expect(myProfileLink).toBeInTheDocument()
         })
     })
+
+    it('saves logged in user data to local Storage after login success', async () => {
+        const { queryByPlaceholderText, container, queryByText } = setup('/signup')
+        const displayNameInput  = queryByPlaceholderText('Your display name')
+        const usernameInput = queryByPlaceholderText('Your username')
+        const passwordInput = queryByPlaceholderText('Your password')
+        const passwordConfirmationInput = queryByPlaceholderText('Your password confirmation')
+
+
+        fireEvent.change(displayNameInput, changeEvent('display1'))
+        fireEvent.change(usernameInput, changeEvent('user1'))
+        fireEvent.change(passwordInput, changeEvent('AZerty12'))
+        fireEvent.change(passwordConfirmationInput, changeEvent('AZerty12'))
+
+        const button = container.querySelector('button')
+
+        axios.post = jest.fn().mockResolvedValue({
+            data: {
+                message: 'User saved'
+            }
+        })
+            .mockResolvedValueOnce({
+                data: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'dispaly1',
+                    image: 'profile1.png'
+                }
+            })
+
+        fireEvent.click(button)
+        await waitFor(() => {queryByText('My Profile')} )
+        const dataInStorage = JSON.parse(localStorage.getItem('hoax-auth'))
+        expect(dataInStorage).toEqual({
+            id: 1,
+            username: 'user1',
+            displayName: 'dispaly1',
+            image: 'profile1.png',
+            password: 'AZerty12',
+            isLoggedIn: true,
+            message: "User saved"
+        })
+    })
+
+    it('displays logged in Navigation Bar when storage has logged in user data', () => {
+        localStorage.setItem(
+            'hoax-auth',
+            JSON.stringify({
+                id: 1,
+                username: 'user1',
+                displayName: 'dispaly1',
+                image: 'profile1.png',
+                password: 'AZerty12',
+                isLoggedIn: true,
+                message: "User saved"}))
+
+        const { queryByText } = setup('/')
+        const myProfileLink = queryByText('My Profile')
+        expect(myProfileLink).toBeInTheDocument()
+    })
 })
