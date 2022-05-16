@@ -14,6 +14,7 @@ import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/1.0")
 public class UserController {
 
     private final UserService userService;
@@ -32,10 +34,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/api/1.0/users")
+    @PostMapping("/users")
     GenericResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenericResponse("User saved Successfully !");
+    }
+
+    @GetMapping("/users")
+    public Page<?> getUsers() {
+        return userService.getUsers();
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class })

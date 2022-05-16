@@ -10,6 +10,9 @@ DATE : 4/29/2022 4:15 PM
 import com.springframework.hoxify.exception.DuplicateUsernameException;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -35,5 +37,10 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    public Page<?> getUsers() {
+        Pageable pageable = PageRequest.of(0,10);
+        return userRepository.findAll(pageable);
     }
 }
