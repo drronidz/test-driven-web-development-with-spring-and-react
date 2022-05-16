@@ -11,23 +11,14 @@ import UserPage from "../pages/UserPage/UserPage";
 import NavigationBar from "../components/NavigationBar/NavigationBar";
 
 
-const actions = {
-    postSignUp: apiCalls.signUp,
-    postLogin : apiCalls.login
-}
-
 function App() {
   return (
 
     <div className="container">
         <NavigationBar/>
         <Switch>
-            <Route
-                path="/login"
-                component={(props) => <LoginPage {...props} actions={actions} />}/>
-            <Route
-                path="/signup"
-                component={(props) => <UserSignUpPage {...props} actions={actions}/>}/>
+            <Route path="/login" component={LoginPage}/>
+            <Route path="/signup" component={UserSignUpPage}/>
             <Route path="/:username" component={UserPage}/>
             <Route exact path="/" component={HomePage}/>
         </Switch>

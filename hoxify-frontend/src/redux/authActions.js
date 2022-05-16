@@ -19,3 +19,12 @@ export const loginHandler = (credentials) => {
         })
     }
 }
+
+export const signupHandler = (user) => {
+    return function(dispatch) {
+        return apiCalls.signUp(user)
+            .then((response) => {
+                return dispatch(loginHandler(user))
+        })
+    }
+}

@@ -3,6 +3,8 @@ import Input from "../../components/input/Input";
 import Spinner from "../../components/spinner/Spinner";
 import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
 import {connect} from "react-redux";
+import * as authActions from '../../redux/authActions'
+
 
 export class UserSignUpPage extends React.Component{
 
@@ -83,45 +85,12 @@ export class UserSignUpPage extends React.Component{
             pendingAPICall : true
         })
 
-        this.props.actions.postSignUp(user)
+        this.props.actions
+            .postSignUp(user)
             .then((response) => {
-                // this.setState(
-                //     { pendingAPICall: false },
-                //     () => { this.props.history.push('/') })
-                const body = {
-                    username: this.state.username,
-                    password: this.state.password
-                }
-
-                this.setState({
-                    pendingAPICall: true
-                })
-
-                this.props.actions
-                    .postLogin(body)
-                    .then((response) => {
-                        const action = {
-                            type: 'login-success',
-                            payload: {
-                                ...response.data,
-                                password: this.state.password
-                            }
-                        }
-                        this.props.dispatch(action)
-                        this.setState(
-                            { pendingAPICall: false } ,
-                            () => {
-                                this.props.history.push('/')
-                            })
-                    })
-                    .catch(error => {
-                        if (error.response) {
-                            this.setState({
-                                apiError: error.response.data.message,
-                                pendingAPICall: false
-                            })
-                        }
-                    })
+                this.setState(
+                    { pendingAPICall: false },
+                    () => { this.props.history.push('/') })
             })
             .catch((apiError) => {
                 let errors = { ...this.state.errors }
@@ -207,4 +176,12 @@ UserSignUpPage.defaultProps = {
     }
 }
 
-export default connect()(UserSignUpPage)
+const mapDispatchToProps = (dispatch) => {
+    return {
+        actions: {
+            postSignUp: (user) => dispatch(authActions.signupHandler(user))
+        }
+    }
+}
+
+export default connect(null, mapDispatchToProps)(UserSignUpPage)
