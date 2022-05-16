@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../../components/input/Input";
 import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
 import {connect} from "react-redux";
+import * as authActions from '../../redux/authActions'
 
 export class LoginPage extends React.Component {
     state = {
@@ -35,26 +36,15 @@ export class LoginPage extends React.Component {
             password: this.state.password
         }
 
-        this.setState({
-            pendingAPICall: true
-        })
+        this.setState({pendingAPICall: true})
 
         this.props.actions
             .postLogin(body)
             .then((response) => {
-                const action = {
-                    type: 'login-success',
-                    payload: {
-                        ...response.data,
-                        password: this.state.password
-                    }
-                }
-                this.props.dispatch(action)
                 this.setState(
-                    { pendingAPICall: false } ,
-                    () => {
-                        this.props.history.push('/')
-                    })
+                    { pendingAPICall: false },
+                    () => {this.props.history.push('/')}
+                    )
             })
             .catch(error => {
                 if (error.response) {
@@ -116,4 +106,12 @@ LoginPage.defaultProps = {
     dispatch: () => {}
 }
 
-export default connect()(LoginPage)
+const mapDispatchToProps = dispatch => {
+    return {
+        actions: {
+            postLogin: (body) => dispatch(authActions.loginHandler(body))
+        }
+    }
+}
+
+export default connect(null, mapDispatchToProps)(LoginPage)
