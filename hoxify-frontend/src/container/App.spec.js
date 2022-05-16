@@ -7,6 +7,11 @@ import axios from "axios";
 import configStore from "../redux/configStore";
 
 
+beforeEach(() => {
+    localStorage.clear()
+    delete axios.defaults.headers.common['Authorization']
+})
+
 const setup = (path) => {
     const store = configStore(false)
     return render(
@@ -186,8 +191,7 @@ describe('App', () => {
                     username: 'user1',
                     displayName: 'dispaly1',
                     image: 'profile1.png'
-                }
-            })
+                }})
 
         fireEvent.click(button)
         await waitFor(() => {queryByText('My Profile')} )
@@ -218,5 +222,75 @@ describe('App', () => {
         const { queryByText } = setup('/')
         const myProfileLink = queryByText('My Profile')
         expect(myProfileLink).toBeInTheDocument()
+    })
+
+    it('sets axios authorization with base64 encoded user credentials after login success', async () => {
+        const { queryByPlaceholderText, container, queryByText } = setup('/login')
+
+        const usernameInput = queryByPlaceholderText('Your username')
+        fireEvent.change(usernameInput, changeEvent('user1'))
+
+        const passwordInput = queryByPlaceholderText('Your password')
+        fireEvent.change(passwordInput, changeEvent('AZerty12'))
+
+        const button = container.querySelector('button')
+
+        axios.post = jest.fn().mockResolvedValue({
+            data: {
+                message: 'User saved'
+            }
+        })
+            .mockResolvedValueOnce({
+                data: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'dispaly1',
+                    image: 'profile1.png'
+                }})
+        fireEvent.click(button)
+
+        await waitFor(() => queryByText('My Profile'))
+        const axiosAuthorization = axios.defaults.headers.common['Authorization']
+        const encoded = btoa('user1:AZerty12')
+        const expectedAuthorization = `Basic ${encoded}`
+        expect(axiosAuthorization).toBe(expectedAuthorization)
+    })
+
+    it('sets axios authorization with base64 encoded user credentials when storage has logged in user data', () => {
+        localStorage.setItem(
+            'hoax-auth',
+            JSON.stringify({
+                id: 1,
+                username: 'user1',
+                display: 'display1',
+                image: 'profile1.png',
+                password: 'AZzerty12',
+                isLoggedIn: true
+            }))
+
+        setup('/')
+        const axiosAuthorization = axios.defaults.headers.common['Authorization']
+        const encoded = btoa('user1:AZzerty12')
+        const expectedAuthorization = `Basic ${encoded}`
+        expect(axiosAuthorization).toBe(expectedAuthorization)
+    })
+
+    it('removes axios authorization header when user logout', () => {
+        localStorage.setItem(
+            'hoax-auth',
+            JSON.stringify({
+                id: 1,
+                username: 'user1',
+                display: 'display1',
+                image: 'profile1.png',
+                password: 'AZzerty12',
+                isLoggedIn: true
+            })
+        )
+        const {queryByText} = setup('/')
+        fireEvent.click(queryByText('Logout'))
+
+        const axiosAuthorization = axios.defaults.headers.common['Authorization']
+        expect(axiosAuthorization).toBeFalsy()
     })
 })
