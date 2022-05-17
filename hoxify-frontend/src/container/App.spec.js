@@ -5,7 +5,16 @@ import {MemoryRouter} from "react-router-dom";
 import {Provider} from "react-redux";
 import axios from "axios";
 import configStore from "../redux/configStore";
+import * as apiCalls from '../api/apiCalls'
 
+
+apiCalls.listUsers = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
 
 beforeEach(() => {
     localStorage.clear()

@@ -18,7 +18,8 @@ export const setAuthorizationHeader = (persistedState) => {
 }
 
 export const listUsers = (params = { page : 0, size: 3 }) => {
-    const path = `/api/1.0/users?page=${params.page || 0}&size=${params.size || 3}`
+    const path =
+        `/api/1.0/users?page=${params.page || 0}&size=${params.size || 3}`
     return axios.get(path)
 }
 
