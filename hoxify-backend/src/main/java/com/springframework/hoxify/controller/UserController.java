@@ -15,7 +15,7 @@ import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
-import com.springframework.hoxify.view.Views;
+import com.springframework.hoxify.view.UserVM;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -43,9 +43,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    @JsonView(Views.Base.class)
-    public Page<?> getUsers() {
-        return userService.getUsers();
+    public Page<UserVM> getUsers() {
+        return userService.getUsers().map(user -> new UserVM(user));
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class })

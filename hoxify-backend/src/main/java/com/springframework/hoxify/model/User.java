@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.springframework.hoxify.annotation.UniqueUsername;
 import com.springframework.hoxify.security.CustomAuthorityDeserializer;
-import com.springframework.hoxify.view.Views;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -33,18 +32,15 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    @JsonView(Views.Base.class)
     private long id;
 
     @NotNull(message = "{hoxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     @UniqueUsername
-    @JsonView(Views.Base.class)
     private String username;
 
     @NotNull(message = "{hoxify.constraints.displayName.NotNull.message}")
     @Size(min = 4, max = 255)
-    @JsonView(Views.Base.class)
     private String displayName;
 
     @NotNull(message = "{hoxify.constraints.password.NotNull.message}")
@@ -53,7 +49,7 @@ public class User implements UserDetails {
 //    @JsonIgnore
     private String password;
 
-    @JsonView(Views.Base.class)
+
     private String image;
 
     @Override
