@@ -10,10 +10,12 @@ DATE : 4/29/2022 3:44 PM
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
+import com.springframework.hoxify.view.Views;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -41,6 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @JsonView(Views.Base.class)
     public Page<?> getUsers() {
         return userService.getUsers();
     }
