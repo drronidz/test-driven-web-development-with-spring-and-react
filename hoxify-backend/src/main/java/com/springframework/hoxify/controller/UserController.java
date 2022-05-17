@@ -17,6 +17,8 @@ import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.view.UserVM;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -43,8 +45,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public Page<UserVM> getUsers() {
-        return userService.getUsers().map(user -> new UserVM(user));
+    public Page<UserVM> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable).map(user -> new UserVM(user));
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class })
