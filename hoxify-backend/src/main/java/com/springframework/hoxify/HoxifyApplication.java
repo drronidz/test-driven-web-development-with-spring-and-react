@@ -19,7 +19,7 @@ public class HoxifyApplication {
     }
 
     @Bean
-    @Profile("test")
+    @Profile("!test")
     CommandLineRunner run(UserService userService) {
         return (args -> {
             IntStream.rangeClosed(1, 15)
