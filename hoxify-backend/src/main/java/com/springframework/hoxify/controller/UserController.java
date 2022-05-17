@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
+import com.springframework.hoxify.shared.CurrentUser;
 import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.view.UserVM;
 import org.springframework.data.domain.Page;
@@ -45,8 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public Page<UserVM> getUsers(Pageable pageable) {
-        return userService.getUsers(pageable).map(user -> new UserVM(user));
+    public Page<UserVM> getUsers(@CurrentUser User loggedInUser, Pageable page) {
+        return userService.getUsers(loggedInUser, page).map(user -> new UserVM(user));
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class })

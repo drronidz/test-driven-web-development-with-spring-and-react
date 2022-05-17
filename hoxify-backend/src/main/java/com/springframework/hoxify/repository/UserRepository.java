@@ -21,4 +21,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM USER", nativeQuery = true)
     Page<UserProjection> getAllUsersProjection(Pageable pageable);
+    Page<User> findByUsernameNot(String username, Pageable page);
 }

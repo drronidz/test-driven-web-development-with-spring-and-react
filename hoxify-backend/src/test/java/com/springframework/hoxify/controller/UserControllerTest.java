@@ -3,8 +3,10 @@ package com.springframework.hoxify.controller;
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
+import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.tools.TestPage;
+import com.springframework.hoxify.tools.TestTools;
 import com.springframework.hoxify.tools.Tools;
 import org.apiguardian.api.API;
 import org.junit.Before;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -52,6 +55,9 @@ public class UserControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    UserService userService;
+
     @Before
     public void cleanup() {
         userRepository.deleteAll();
@@ -70,6 +76,15 @@ public class UserControllerTest {
     public <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
+
+    private void authenticate(String username) {
+        testRestTemplate
+                .getRestTemplate()
+                .getInterceptors()
+                .add(new BasicAuthenticationInterceptor(username, TestTools.TEST_PASSWORD));
+    }
+
+
 
     @Test
     public void postUser_whenUserIsValid_receiveOk() {
@@ -339,5 +354,16 @@ public class UserControllerTest {
         String path = API_1_0_USERS + "?page=-5";
         ResponseEntity<TestPage<Object>> response = getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
         assertThat(response.getBody().getNumber()).isEqualTo(0);
+    }
+
+    @Test
+    public void getUsers_whenUserIsLoggedIn_receivePageWithoutLoggedInUser() {
+        userService.save(createValidUser("userOne"));
+        userService.save(createValidUser("userTwo"));
+        userService.save(createValidUser("userThree"));
+
+        authenticate("userOne");
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(2);
     }
 }
