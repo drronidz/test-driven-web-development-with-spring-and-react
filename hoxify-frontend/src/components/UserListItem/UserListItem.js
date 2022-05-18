@@ -1,5 +1,6 @@
 import React from "react";
 import defaultProfileAvatar from '../../assets/default-avatar.png'
+import { Link } from 'react-router-dom'
 
 const UserListItem = props => {
     let imageSource = defaultProfileAvatar;
@@ -9,7 +10,7 @@ const UserListItem = props => {
     }
 
     return (
-        <div className="list-group-item list-group-item-action">
+        <Link className="list-group-item list-group-item-action" to={`/${props.user.username}`}>
             <img className="rounded-circle"
                  alt="profile"
                  width="32"
@@ -18,7 +19,7 @@ const UserListItem = props => {
             <span className="pl-2">
                 {`${props.user.displayName}@${props.user.username}`}
             </span>
-        </div>
+        </Link>
 )}
 
 export default UserListItem

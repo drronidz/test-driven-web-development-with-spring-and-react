@@ -2,10 +2,13 @@ import React from "react";
 import {fireEvent, render, waitFor} from '@testing-library/react'
 import UserList from './UserList'
 import * as apiCalls from '../../api/apiCalls'
-import {wait} from "@testing-library/user-event/dist/utils";
+import { MemoryRouter } from 'react-router-dom'
 
 const setup = () => {
-    return render(<UserList/>)
+    return render(
+        <MemoryRouter>
+            <UserList/>
+        </MemoryRouter>)
 }
 
 apiCalls.listUsers = jest.fn().mockResolvedValue({
@@ -84,7 +87,6 @@ describe('UserList', () => {
             const header = container.querySelector('h3')
             expect(header).toHaveTextContent("Users")
         })
-
         it('displays three items when listUsers API returns three users', async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetSinglePage)
             const { queryByTestId } = setup()
@@ -93,7 +95,6 @@ describe('UserList', () => {
                 expect(userGroup.childElementCount).toBe(3)
             })
         })
-
         it('displays the displayName@username when listUser API returns users', async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetSinglePage)
             const { queryByText } = setup()
@@ -102,7 +103,6 @@ describe('UserList', () => {
                 expect(firstUser).toBeInTheDocument()
             })
         })
-
         it('displays the next button when response has last value as false', async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetMultiPageFirst)
             const { queryByText } = setup()
@@ -111,7 +111,6 @@ describe('UserList', () => {
                 expect(nextLink).toBeInTheDocument()
             })
         })
-
         it('hides the next button when response has last value as true', async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetMultiPageLast)
             const { queryByText } = setup()
@@ -120,7 +119,6 @@ describe('UserList', () => {
                 expect(nextLink).not.toBeInTheDocument()
             })
         })
-
         it('shows the previous button when response has first value as false',async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetMultiPageLast)
             const { queryByText } = setup()
@@ -129,13 +127,23 @@ describe('UserList', () => {
                 expect(previousLink).toBeInTheDocument()
             })
         })
-
         it('hides the previous button when response has first value as true',async () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetMultiPageFirst)
             const { queryByText } = setup()
             await waitFor(() => {
                 const previousLink = queryByText('< previous')
                 expect(previousLink).not.toBeInTheDocument()
+            })
+        })
+        it('has link to UserPage ', async () => {
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetSingleP age)
+            const { queryByText, container } = setup()
+            await waitFor(() => {
+                queryByText('display1@user1')
+                const firstAnchor = container.querySelectorAll('a')[0]
+                expect(firstAnchor.getAttribute('href')).toBe('/user1')
             })
         })
     })
@@ -148,7 +156,6 @@ describe('UserList', () => {
             setup()
             expect(apiCalls.listUsers).toHaveBeenCalledTimes(1)
         })
-
         it("calls listUsers method with page zero and size three", () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockedEmptySuccessResponse)
             setup()
