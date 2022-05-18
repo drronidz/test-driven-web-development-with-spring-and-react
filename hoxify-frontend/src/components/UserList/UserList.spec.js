@@ -67,6 +67,14 @@ const mockSuccessGetMultiPageLast = {
     }
 }
 
+const mockFailGet = {
+    response: {
+        data: {
+            message: 'Load error'
+        }
+    }
+}
+
 describe('UserList', () => {
 
     describe("Layout", () => {
@@ -149,7 +157,7 @@ describe('UserList', () => {
     })
 
     describe('Interactions', () => {
-        it('loads the next page when clicked to next button', async () => {
+        it('loads the next page when clicked to next button',async () => {
             apiCalls.listUsers = jest.fn()
                 .mockResolvedValueOnce(mockSuccessGetMultiPageFirst)
                 .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
@@ -167,7 +175,7 @@ describe('UserList', () => {
             })
 
         })
-        it('loads the previous page when clicked to previous button', async () => {
+        it('loads the previous page when clicked to previous button',async () => {
             apiCalls.listUsers = jest
                 .fn()
                 .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
@@ -181,6 +189,45 @@ describe('UserList', () => {
             await waitFor(() => {
                 const firstPageUser = queryByText('display1@user1')
                 expect(firstPageUser).toBeInTheDocument()
+            })
+        })
+        it('displays error message when loading other page fails',async () => {
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+                .mockRejectedValueOnce(mockFailGet)
+
+            const { queryByText } = setup()
+            let previousLink = undefined
+            await waitFor(() => { previousLink = queryByText('< previous') })
+            fireEvent.click(previousLink)
+
+            await waitFor(() => {
+                const errorMessage = queryByText('User load failed')
+                expect(errorMessage).toBeInTheDocument()
+            })
+        })
+        it('hides error message when successfully loading other page',async () => {
+
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+                .mockRejectedValueOnce(mockFailGet)
+                .mockResolvedValueOnce(mockSuccessGetMultiPageFirst)
+
+            const { queryByText } = setup()
+            let previousLink = undefined
+            let errorMessage = undefined
+            await waitFor(() => { previousLink = queryByText('< previous') })
+
+            fireEvent.click(previousLink)
+            await waitFor(() => {
+                errorMessage = queryByText('User load failed')
+            })
+
+            fireEvent.click(previousLink)
+            await waitFor(() => {
+                expect(errorMessage).not.toBeInTheDocument()
             })
         })
     })

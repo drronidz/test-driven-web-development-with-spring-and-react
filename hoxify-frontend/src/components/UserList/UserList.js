@@ -22,10 +22,11 @@ class UserList extends React.Component {
             size: this.state.page.size
         }).then((response) => {
             this.setState({
-                page: response.data
+                page: response.data,
+                loadError: undefined
             })
-        }).catch(() => {
-
+        }).catch((error) => {
+            this.setState({ loadError: 'User load failed' })
         })
     }
 
@@ -52,6 +53,11 @@ class UserList extends React.Component {
                        {`< previous`}
             </span>
 
+        const errorMessage = this.state.loadError &&
+            <span className="alert alert-danger">
+                {this.state.loadError}
+            </span>
+
         return (
             <div className="card">
                 <h3 className="card-title m-auto">Users</h3>
@@ -64,6 +70,7 @@ class UserList extends React.Component {
                     {previousPageButton}
                     {nextPageButton}
                 </div>
+                {errorMessage}
             </div>
         )
     }
