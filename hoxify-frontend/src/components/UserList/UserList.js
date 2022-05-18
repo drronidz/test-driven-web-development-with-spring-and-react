@@ -1,5 +1,6 @@
 import React from "react";
 import * as apiCalls from '../../api/apiCalls'
+import UserListItem from "../UserListItem/UserListItem";
 
 class UserList extends React.Component {
 
@@ -30,12 +31,7 @@ class UserList extends React.Component {
                 <h3 className="card-title m-auto">Users</h3>
                 <div className="list-group list-group-flush" data-testid="usergroup">
                     { this.state.page.content.map(user => {
-                        return (
-                            <div
-                                className="list-group-item list-group-item-action"
-                                key={user.username}>
-                                {`${user.displayName}@${user.username}`}
-                            </div>)
+                        return (<UserListItem key={user.username} user={user}/>)
                     })}
                 </div>
             </div>
