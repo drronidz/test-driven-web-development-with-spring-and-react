@@ -13,8 +13,12 @@ class UserList extends React.Component {
     }
 
     componentDidMount() {
+       this.loadDATA()
+    }
+
+    loadDATA = (requestPage = 0) => {
         apiCalls.listUsers( {
-            page: this.state.page.number,
+            page: requestPage,
             size: this.state.page.size
         }).then((response) => {
             this.setState({
@@ -25,7 +29,29 @@ class UserList extends React.Component {
         })
     }
 
+    onClickNextPage = () => {
+        this.loadDATA(this.state.page.number + 1)
+    }
+
+    onClickPreviousPage = () => {
+        this.loadDATA(this.state.page.number - 1)
+    }
+
     render() {
+        const nextPageButton = !this.state.page.last &&
+            <span className="btn"
+                  style={{cursor: 'pointer', float: 'right', borderColor: 'black'}}
+                  onClick={this.onClickNextPage}>
+                        {`next >`}
+            </span>
+
+        const previousPageButton = !this.state.page.first &&
+            <span className="btn"
+                  style={{cursor: 'pointer', float: 'left', borderColor: 'black'}}
+                  onClick={this.onClickPreviousPage}>
+                       {`< previous`}
+            </span>
+
         return (
             <div className="card">
                 <h3 className="card-title m-auto">Users</h3>
@@ -33,6 +59,10 @@ class UserList extends React.Component {
                     { this.state.page.content.map(user => {
                         return (<UserListItem key={user.username} user={user}/>)
                     })}
+                </div>
+                <div>
+                    {previousPageButton}
+                    {nextPageButton}
                 </div>
             </div>
         )
