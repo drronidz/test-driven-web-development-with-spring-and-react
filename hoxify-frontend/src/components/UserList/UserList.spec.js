@@ -1,5 +1,5 @@
 import React from "react";
-import {fireEvent, render, waitFor} from '@testing-library/react'
+import {fireEvent, render, waitFor, screen} from '@testing-library/react'
 import UserList from './UserList'
 import * as apiCalls from '../../api/apiCalls'
 import { MemoryRouter } from 'react-router-dom'
@@ -140,6 +140,7 @@ describe('UserList', () => {
                 .fn()
                 .mockResolvedValue(mockSuccessGetSingleP age)
             const { queryByText, container } = setup()
+            screen.findAllByRole
             await waitFor(() => {
                 queryByText('display1@user1')
                 const firstAnchor = container.querySelectorAll('a')[0]

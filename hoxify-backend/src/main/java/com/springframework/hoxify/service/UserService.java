@@ -7,6 +7,7 @@ Author Name : @ DRRONIDZ
 DATE : 4/29/2022 4:15 PM
 */
 
+import com.springframework.hoxify.error.NotFoundException;
 import com.springframework.hoxify.exception.DuplicateUsernameException;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
@@ -43,5 +44,13 @@ public class UserService {
             return userRepository.findByUsernameNot(loggedInUser.getUsername(), pageable);
         }
         return userRepository.findAll(pageable);
+    }
+
+    public User getByUsername(String username) {
+        User inDB = userRepository.findByUsername(username);
+        if (inDB == null) {
+            throw new NotFoundException(username);
+        }
+        return inDB;
     }
 }
