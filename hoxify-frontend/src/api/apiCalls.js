@@ -23,3 +23,7 @@ export const listUsers = (params = { page : 0, size: 3 }) => {
     return axios.get(path)
 }
 
+export const getUser = (username) => {
+    return axios.get(`/api/1.0/users/${username}`)
+}
+
