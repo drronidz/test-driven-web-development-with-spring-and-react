@@ -13,39 +13,39 @@ describe('UserSignUpPage', () => {
             const header = container.querySelector('h1')
             expect(header).toHaveTextContent('Sign Up')
         })
-        it('has input for display name', () => {
+        it('has Input for display name', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const displayNameInput = queryByPlaceholderText('Your display name')
             expect(displayNameInput).toBeInTheDocument()
         })
 
-        it('has input for username', () => {
+        it('has Input for username', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const usernameInput = queryByPlaceholderText('Your username')
             expect(usernameInput).toBeInTheDocument()
         })
 
         // Password Field
-        it('has input for password', () => {
+        it('has Input for password', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const passwordInput = queryByPlaceholderText('Your password')
             expect(passwordInput).toBeInTheDocument()
         })
 
-        it('has password type for password input', () => {
+        it('has password type for password Input', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const passwordInput = queryByPlaceholderText('Your password')
             expect(passwordInput.type).toBe('password')
         })
 
         // Password Confirmation
-        it('has input for password confirmation', () => {
+        it('has Input for password confirmation', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const passwordConfirmationInput = queryByPlaceholderText('Your password confirmation')
             expect(passwordConfirmationInput).toBeInTheDocument()
         })
 
-        it('has password type for password confirmation input', () => {
+        it('has password type for password confirmation Input', () => {
             const { queryByPlaceholderText } = render(<UserSignUpPage/>)
             const passwordConfirmationInput = queryByPlaceholderText('Your password confirmation')
             expect(passwordConfirmationInput.type).toBe('password')
@@ -287,14 +287,14 @@ describe('UserSignUpPage', () => {
             expect(button).toBeDisabled()
         })
 
-        it ('displays error style for password confirmation input when password confirmation mismatch', () => {
+        it ('displays error style for password confirmation Input when password confirmation mismatch', () => {
             const { queryByText } = setupForSubmit()
             fireEvent.change(passwordConfirmationInput, changeEvent('new-pass'))
             const mismatchWarning = queryByText('Does not match to password')
             expect(mismatchWarning).toBeInTheDocument()
         })
 
-        it ('displays error style for password confirmation input when password input mismatch', () => {
+        it ('displays error style for password confirmation Input when password Input mismatch', () => {
             const { queryByText } = setupForSubmit()
             fireEvent.change(passwordInput, changeEvent('new-pass'))
             const mismatchWarning = queryByText('Does not match to password')

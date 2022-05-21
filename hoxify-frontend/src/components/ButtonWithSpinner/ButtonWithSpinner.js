@@ -1,5 +1,5 @@
 import React from "react";
-import Spinner from "../spinner/Spinner";
+import Spinner from "../Spinner/Spinner";
 
 const ButtonWithProgress = (props) => {
     return (

@@ -1,5 +1,7 @@
 import React from "react";
 import * as apiCalls from '../../api/apiCalls'
+import ProfileCard from "../../components/ProfileCard/ProfileCard";
+import NotFoundAlert from "../../components/NotFoundAlert/NotFoundAlert";
 
 class UserPage extends React.Component {
 
@@ -40,18 +42,8 @@ class UserPage extends React.Component {
     }
 
     render() {
-        const userDetails = this.state.user &&
-            <span>
-                {`${this.state.user.displayName}@${this.state.user.username}`}
-            </span>
-
-        const userNotFoundAlert = this.state.userNotFound &&
-            <div className="alert alert-danger text-center">
-                <div className="alert-heading">
-                    <i className="fas fa-exclamation-triangle fa-3x"/>
-                </div>
-                <h5>User not found</h5>
-            </div>
+        const userDetails = this.state.user && <ProfileCard user={this.state.user}/>
+        const userNotFoundAlert = this.state.userNotFound && <NotFoundAlert alertMessage={"User not found"}/>
 
         return (
             <div data-testid="userpage">

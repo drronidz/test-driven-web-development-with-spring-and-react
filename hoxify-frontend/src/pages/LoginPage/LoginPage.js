@@ -1,6 +1,6 @@
 import React from "react";
-import Input from "../../components/input/Input";
-import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
+import Input from "../../components/Input/Input";
+import ButtonWithProgress from "../../components/ButtonWithSpinner/ButtonWithSpinner";
 import {connect} from "react-redux";
 import * as authActions from '../../redux/authActions'
 

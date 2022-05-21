@@ -3,7 +3,7 @@ import {fireEvent, queryByText, render} from "@testing-library/react";
 import Input from './Input'
 
 describe('Layout', () => {
-    it ('has input item', () => {
+    it ('has Input item', () => {
         const { container } = render(<Input/>)
         const input = container.querySelector('input')
         expect(input).toBeInTheDocument()
@@ -21,25 +21,25 @@ describe('Layout', () => {
         expect(label).not.toBeInTheDocument()
     })
 
-    it ('has text type for input when type is not provided as prop', () => {
+    it ('has text type for Input when type is not provided as prop', () => {
         const { container } = render(<Input/>)
         const input = container.querySelector('input')
         expect(input.type).toBe('text')
     })
 
-    it ('has password type for input password type is provided as prop', () => {
+    it ('has password type for Input password type is provided as prop', () => {
         const { container } = render(<Input type="password"/>)
         const input = container.querySelector('input')
         expect(input.type).toBe('password')
     })
 
-    it ('has number type for input number type is provided as prop', () => {
+    it ('has number type for Input number type is provided as prop', () => {
         const { container } = render(<Input type="number"/>)
         const input = container.querySelector('input')
         expect(input.type).toBe('number')
     })
 
-    it ('has date type for input date type is provided as prop', () => {
+    it ('has date type for Input date type is provided as prop', () => {
         const { container } = render(<Input type="date"/>)
         const input = container.querySelector('input')
         expect(input.type).toBe('date')
@@ -51,7 +51,7 @@ describe('Layout', () => {
         expect(input.placeholder).toBe('Test placeholder ...')
     })
 
-    it ('has value for input when value is provided as prop', () => {
+    it ('has value for Input when value is provided as prop', () => {
         const { container } = render(<Input value="Test value"/>)
         const input = container.querySelector('input')
         expect(input.value).toBe('Test value')
@@ -61,7 +61,7 @@ describe('Layout', () => {
         const onChange = jest.fn()
         const { container } = render(<Input onChange={onChange} />)
         const input = container.querySelector('input')
-        fireEvent.change(input, { target: { value: 'new-input' }})
+        fireEvent.change(input, { target: { value: 'new-Input' }})
         expect(onChange).toHaveBeenCalledTimes(1)
     })
 

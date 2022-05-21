@@ -1,7 +1,7 @@
 import React from "react";
-import Input from "../../components/input/Input";
-import Spinner from "../../components/spinner/Spinner";
-import ButtonWithProgress from "../../components/button-with-spinner/ButtonWithSpinner";
+import Input from "../../components/Input/Input";
+import Spinner from "../../components/Spinner/Spinner";
+import ButtonWithProgress from "../../components/ButtonWithSpinner/ButtonWithSpinner";
 import {connect} from "react-redux";
 import * as authActions from '../../redux/authActions'
 

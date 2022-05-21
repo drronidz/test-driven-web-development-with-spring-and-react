@@ -10,25 +10,25 @@ describe('LoginPage', () => {
         expect(header).toHaveTextContent('Login')
     })
 
-    it ('has input for username', () => {
+    it ('has Input for username', () => {
         const { queryByPlaceholderText } = render(<LoginPage/>)
         const usernameInput = queryByPlaceholderText('Your username')
         expect(usernameInput).toBeInTheDocument()
     })
 
-    it ('has text type for username input', () => {
+    it ('has text type for username Input', () => {
         const { queryByPlaceholderText } = render(<LoginPage/>)
         const usernameInput = queryByPlaceholderText('Your username')
         expect(usernameInput.type).toBe('text')
     })
 
-    it ('has input for password', () => {
+    it ('has Input for password', () => {
         const { queryByPlaceholderText } = render(<LoginPage/>)
         const passwordInput = queryByPlaceholderText('Your password')
         expect(passwordInput).toBeInTheDocument()
     })
 
-    it ('has password type for password input', () => {
+    it ('has password type for password Input', () => {
         const { queryByPlaceholderText } = render(<LoginPage/>)
         const passwordInput = queryByPlaceholderText('Your password')
         expect(passwordInput.type).toBe('password')
@@ -103,7 +103,7 @@ describe('Interactions', () => {
         expect(passwordInput).toHaveValue('my-password')
     })
 
-    it ('calls postLogin when the actions are provided in props and input fields have values', () => {
+    it ('calls postLogin when the actions are provided in props and Input fields have values', () => {
         const actions = {
             postLogin: jest.fn().mockResolvedValue({
 
@@ -224,7 +224,7 @@ describe('Interactions', () => {
         expect(actions.postLogin).toHaveBeenCalledTimes(1)
     })
 
-    it ('displays spinner when there is an ongoing api call', () => {
+    it ('displays Spinner when there is an ongoing api call', () => {
         const actions = {
             postLogin: mockAsyncDelayed()
         }
@@ -235,7 +235,7 @@ describe('Interactions', () => {
         expect(spinner).toBeInTheDocument()
     })
 
-    it ('hides spinner after api call finishes successfully',async () => {
+    it ('hides Spinner after api call finishes successfully',async () => {
         const actions = {
             postLogin: mockAsyncDelayed()
         }
