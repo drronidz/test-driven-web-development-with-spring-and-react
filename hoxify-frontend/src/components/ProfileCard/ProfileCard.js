@@ -1,5 +1,6 @@
 import React from 'react';
 import defaultProfileAvatar from '../../assets/default-avatar.png'
+import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 
 const ProfileCard = (props) => {
     const { displayName, username, image } = props.user
@@ -7,12 +8,12 @@ const ProfileCard = (props) => {
     return (
         <div className="card">
             <div className="card-header text-center">
-                <img
+                <ProfileAvatar
                     className="rounded-circle shadow"
                     alt="profile"
                     width="200"
                     height="200"
-                    src={image ? `/images/profile/${image}` : defaultProfileAvatar}
+                    image={image}
                 />
             </div>
             <div className="card-body text-center">
