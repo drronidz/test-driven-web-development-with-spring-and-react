@@ -438,6 +438,7 @@ public class UserControllerTest {
         long anotherUserId = user.getId() + 123;
         ResponseEntity<ApiError> response = putUser(anotherUserId, null, ApiError.class);
         assertThat(response.getBody().getUrl()).contains("users/" + anotherUserId);
+        System.out.println("Here");
     }
 
 
