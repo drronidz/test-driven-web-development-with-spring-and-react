@@ -8,6 +8,7 @@ DATE : 5/7/2022 3:45 PM
 */
 
 import com.springframework.hoxify.model.User;
+import com.springframework.hoxify.view.UserUpdateVM;
 
 public class TestTools {
 
@@ -27,6 +28,12 @@ public class TestTools {
         User user = createValidUser();
         user.setUsername(username);
         return user;
+    }
+
+    public static UserUpdateVM createValidUserUpdateVM() {
+        UserUpdateVM userUpdateVM = new UserUpdateVM();
+        userUpdateVM.setDisplayName("newDisplayName");
+        return userUpdateVM;
     }
 
 }

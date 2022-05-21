@@ -16,6 +16,7 @@ import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.CurrentUser;
 import com.springframework.hoxify.shared.GenericResponse;
+import com.springframework.hoxify.view.UserUpdateVM;
 import com.springframework.hoxify.view.UserVM;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,8 +59,8 @@ public class UserController {
 
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
-    public void updateUser(@PathVariable long id) {
-
+    public UserVM updateUser(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdateVM) {
+        return new UserVM(userService.update(id, userUpdateVM));
     }
 
 
