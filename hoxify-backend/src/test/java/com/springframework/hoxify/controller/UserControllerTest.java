@@ -8,6 +8,8 @@ import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
 import com.springframework.hoxify.tools.Tools;
+import com.springframework.hoxify.view.UserUpdateVM;
+import com.springframework.hoxify.view.UserVM;
 import org.apiguardian.api.API;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.springframework.hoxify.tools.TestTools.createValidUser;
+import static com.springframework.hoxify.tools.TestTools.createValidUserUpdateVM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -441,5 +444,40 @@ public class UserControllerTest {
         System.out.println("Here");
     }
 
+    @Test
+    public void putUser_whenValidUserRequestBodyFromAuthorizedUser_receiveOK() {
+        User user = userService.save(createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM userUpdateVM = createValidUserUpdateVM();
 
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(userUpdateVM);
+        ResponseEntity<Object> responseEntity = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void putUser_whenValidRequestBodyFromAuthorizedUser_displayNameUpdate() {
+        User user = userService.save(createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM userUpdateVM = createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(userUpdateVM);
+        putUser(user.getId(), requestEntity, Object.class);
+
+        User userInDB = userRepository.findByUsername("user1");
+        assertThat(userInDB.getDisplayName()).isEqualTo(userUpdateVM.getDisplayName());
+    }
+
+    @Test
+    public void putUser_whenValidRequestBodyFromAuthorizedUser_receiveUserVMWithUpdatedDisplayName() {
+        User user = userService.save(createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM userUpdateVM = createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(userUpdateVM);
+        ResponseEntity<UserVM> responseEntity = putUser(user.getId(), requestEntity, UserVM.class);
+
+        assertThat(responseEntity.getBody().getDisplayName()).isEqualTo(userUpdateVM.getDisplayName());
+    }
 }

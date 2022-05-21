@@ -11,6 +11,7 @@ import com.springframework.hoxify.error.NotFoundException;
 import com.springframework.hoxify.exception.DuplicateUsernameException;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
+import com.springframework.hoxify.view.UserUpdateVM;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,5 +53,11 @@ public class UserService {
             throw new NotFoundException(username);
         }
         return inDB;
+    }
+
+    public User update(long id, UserUpdateVM userUpdateVM) {
+        User userInDB = userRepository.getOne(id);
+        userInDB.setDisplayName(userUpdateVM.getDisplayName());
+        return userRepository.save(userInDB);
     }
 }
