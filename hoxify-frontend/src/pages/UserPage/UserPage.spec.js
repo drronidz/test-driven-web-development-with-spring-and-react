@@ -57,6 +57,19 @@ describe('UserPage', () => {
                 expect(alert).toBeInTheDocument()
             })
         })
+
+        it('displays Spinner while loading user DATA', () => {
+            apiCalls.getUser = jest.fn().mockImplementation(() => {
+                return new Promise(((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(mockSuccessGetUser)
+                    }, 300)
+                }))
+            })
+            const { queryByText } = setup({ match })
+            const spinner = queryByText('Loading...')
+            expect(spinner).toBeInTheDocument()
+        })
     })
 
     describe('Life cycle', () => {

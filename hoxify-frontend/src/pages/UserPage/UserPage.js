@@ -2,12 +2,14 @@ import React from "react";
 import * as apiCalls from '../../api/apiCalls'
 import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import NotFoundAlert from "../../components/NotFoundAlert/NotFoundAlert";
+import Spinner from "../../components/Spinner/Spinner";
 
 class UserPage extends React.Component {
 
     state = {
         user: undefined,
-        userNotFound: false
+        userNotFound: false,
+        isLoadingUser: true
     }
 
     componentDidMount() {
@@ -26,30 +28,35 @@ class UserPage extends React.Component {
             return
         }
         this.setState({
-            userNotFound: false
+            userNotFound: false,
+            isLoadingUser: true
         })
         apiCalls.getUser(username)
             .then((response) => {
                 this.setState({
-                    user: response.data
+                    user: response.data,
+                    isLoadingUser: false
                 })
             })
             .catch(error => {
                 this.setState({
-                    userNotFound: true
+                    userNotFound: true,
+                    isLoadingUser: false
                 })
             })
     }
 
     render() {
-        const userDetails = this.state.user && <ProfileCard user={this.state.user}/>
-        const userNotFoundAlert = this.state.userNotFound && <NotFoundAlert alertMessage={"User not found"}/>
+        let pageContent
+        if (this.state.userNotFound) pageContent = <NotFoundAlert alertMessage={"User not found"}/>
+        if (this.state.isLoadingUser) pageContent = <Spinner/>
+        if (this.state.user) pageContent = <ProfileCard user={this.state.user}/>
 
         return (
             <div data-testid="userpage">
-                {userDetails}
-                {userNotFoundAlert}
-            </div>)
+                {pageContent}
+            </div>
+        )
     }
 }
 
