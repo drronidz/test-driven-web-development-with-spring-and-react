@@ -5,6 +5,11 @@ import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 const ProfileCard = (props) => {
     const { displayName, username, image } = props.user
 
+    const editButton = props.isEditable &&
+        <button className="btn btn-outline-success">
+            <i className="fas fa-user-edit"/>Edit
+        </button>
+
     return (
         <div className="card">
             <div className="card-header text-center">
@@ -18,6 +23,7 @@ const ProfileCard = (props) => {
             </div>
             <div className="card-body text-center">
                 <h4>{`${displayName}@${username}`}</h4>
+                {editButton}
             </div>
         </div>
 

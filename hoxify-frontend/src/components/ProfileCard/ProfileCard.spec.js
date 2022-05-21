@@ -17,8 +17,8 @@ const userWithoutImage = {
     image: undefined
 }
 
-const setup = (props) => {
-    return render(<ProfileCard user={props}/>)
+const setup = (props, isEditable = undefined) => {
+    return render(<ProfileCard user={props} isEditable={isEditable}/>)
 }
 
 describe('ProfileCard', () => {
@@ -45,5 +45,17 @@ describe('ProfileCard', () => {
         const { container } = setup(userWithImage)
         const image = container.querySelector('img')
         expect(image.src).toContain('/images/profile/' + userWithImage.image)
+    })
+
+    it('displays edit button when isEditable property set as true',() => {
+        const { queryByText } = setup(userWithImage, true)
+        const editButton = queryByText('Edit')
+        expect(editButton).toBeInTheDocument()
+    })
+
+    it('does not display edit button when isEditable not provided',() => {
+        const { queryByText } = setup(userWithImage)
+        const editButton = queryByText('Edit')
+        expect(editButton).not.toBeInTheDocument()
     })
 })

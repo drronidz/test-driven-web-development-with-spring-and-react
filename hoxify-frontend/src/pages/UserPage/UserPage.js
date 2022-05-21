@@ -3,6 +3,7 @@ import * as apiCalls from '../../api/apiCalls'
 import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import NotFoundAlert from "../../components/NotFoundAlert/NotFoundAlert";
 import Spinner from "../../components/Spinner/Spinner";
+import {connect} from "react-redux";
 
 class UserPage extends React.Component {
 
@@ -48,9 +49,11 @@ class UserPage extends React.Component {
 
     render() {
         let pageContent
+        const isEditable = this.props.loggedInUser.username === this.props.match.params.username
+
         if (this.state.userNotFound) pageContent = <NotFoundAlert alertMessage={"User not found"}/>
         if (this.state.isLoadingUser) pageContent = <Spinner/>
-        if (this.state.user) pageContent = <ProfileCard user={this.state.user}/>
+        if (this.state.user) pageContent = <ProfileCard user={this.state.user} isEditable={isEditable}/>
 
         return (
             <div data-testid="userpage">
@@ -66,4 +69,10 @@ UserPage.defaultProps = {
     }
 }
 
-export default UserPage
+const mapStateToProps = (state) => {
+    return {
+        loggedInUser : state
+    }
+}
+
+export default connect(mapStateToProps)(UserPage)
