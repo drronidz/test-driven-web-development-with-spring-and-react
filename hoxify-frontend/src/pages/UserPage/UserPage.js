@@ -53,7 +53,12 @@ class UserPage extends React.Component {
 
         if (this.state.userNotFound) pageContent = <NotFoundAlert alertMessage={"User not found"}/>
         if (this.state.isLoadingUser) pageContent = <Spinner/>
-        if (this.state.user) pageContent = <ProfileCard user={this.state.user} isEditable={isEditable}/>
+        if (this.state.user) pageContent =
+            <ProfileCard
+                user={this.state.user}
+                isEditable={isEditable}
+                inEditMode={true}
+            />
 
         return (
             <div data-testid="userpage">

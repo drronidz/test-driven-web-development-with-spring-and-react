@@ -1,14 +1,37 @@
 import React from 'react';
-import defaultProfileAvatar from '../../assets/default-avatar.png'
 import ProfileAvatar from "../ProfileImage/ProfileAvatar";
+import Input from "../Input/Input";
 
 const ProfileCard = (props) => {
     const { displayName, username, image } = props.user
 
-    const editButton = props.isEditable &&
+    const userInformation = !props.inEditMode &&  <h4>{`${displayName}@${username}`}</h4>
+
+    const showEditButton = props.isEditable && !props.inEditMode
+
+    const editButton = showEditButton &&
         <button className="btn btn-outline-success">
             <i className="fas fa-user-edit"/>Edit
         </button>
+
+    const saveButton = props.inEditMode &&
+        <button className="btn btn-primary">
+            <i className="fas fa-save"/>Save
+        </button>
+
+    const cancelButton = props.isEditable &&
+        <button className="btn btn-primary">
+            <i className="fas fa-window-close"/>Cancel
+        </button>
+
+
+    const input = props.inEditMode &&
+        <div style={{ marginTop: '10px' , marginBottom: '10px'}}>
+            <Input
+                value={displayName}
+                label={`Change Display Name for ${username}`}
+            />
+        </div>
 
     return (
         <div className="card">
@@ -22,8 +45,13 @@ const ProfileCard = (props) => {
                 />
             </div>
             <div className="card-body text-center">
-                <h4>{`${displayName}@${username}`}</h4>
-                {editButton}
+                {userInformation}
+                {input}
+                <div style={{ display: "flex" , justifyContent: "space-evenly"}}>
+                    {editButton}
+                    {saveButton}
+                    {cancelButton}
+                </div>
             </div>
         </div>
 
