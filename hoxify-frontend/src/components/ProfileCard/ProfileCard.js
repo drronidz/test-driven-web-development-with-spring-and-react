@@ -10,7 +10,7 @@ const ProfileCard = (props) => {
     const showEditButton = props.isEditable && !props.inEditMode
 
     const editButton = showEditButton &&
-        <button className="btn btn-outline-success">
+        <button className="btn btn-outline-success" onClick={props.onClickEdit}>
             <i className="fas fa-user-edit"/>Edit
         </button>
 
@@ -19,8 +19,8 @@ const ProfileCard = (props) => {
             <i className="fas fa-save"/>Save
         </button>
 
-    const cancelButton = props.isEditable &&
-        <button className="btn btn-primary">
+    const cancelButton = props.inEditMode &&
+        <button className="btn btn-primary" onClick={props.onClickCancel}>
             <i className="fas fa-window-close"/>Cancel
         </button>
 

@@ -10,7 +10,8 @@ class UserPage extends React.Component {
     state = {
         user: undefined,
         userNotFound: false,
-        isLoadingUser: true
+        isLoadingUser: false,
+        inEditMode: false
     }
 
     componentDidMount() {
@@ -47,6 +48,19 @@ class UserPage extends React.Component {
             })
     }
 
+    // onClick Handlers
+    onClickEditHandler = () => {
+        this.setState({
+            inEditMode : true
+        })
+    }
+
+    onClickCancelHandler = () => {
+        this.setState({
+            inEditMode : false
+        })
+    }
+
     render() {
         let pageContent
         const isEditable = this.props.loggedInUser.username === this.props.match.params.username
@@ -57,7 +71,9 @@ class UserPage extends React.Component {
             <ProfileCard
                 user={this.state.user}
                 isEditable={isEditable}
-                inEditMode={true}
+                inEditMode={this.state.inEditMode}
+                onClickEdit={this.onClickEditHandler}
+                onClickCancel={this.onClickCancelHandler}
             />
 
         return (
