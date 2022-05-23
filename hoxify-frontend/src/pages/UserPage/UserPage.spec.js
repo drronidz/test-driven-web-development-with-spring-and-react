@@ -154,6 +154,55 @@ describe('UserPage', () => {
 
             expect(queryByText('Edit')).toBeInTheDocument()
         })
+
+        it('calls updateUser API when clicking save', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessGetUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            expect(apiCalls.updateUser).toHaveBeenCalledTimes(1)
+        })
+
+        it('calls userUpdate API with user id', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessGetUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            const userId = apiCalls.updateUser.mock.calls[0][0]
+            expect(userId).toBe(1)
+        })
+
+        it('calls updateUser API with request body having changed displayName' , async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessGetUser)
+
+            const displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, { target : { value: 'display1-updated'}})
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            const requestBody = apiCalls.updateUser.mock.calls[0][1]
+
+            expect(requestBody.displayName).toBe('display1-updated')
+        })
+
+        it('returns to non edit mode after a successful updateUser API call', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessGetUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => {
+                const editButtonAfterClickingSave = queryByText('Edit')
+                expect(editButtonAfterClickingSave).toBeInTheDocument()
+            })
+        })
     })
 })
 

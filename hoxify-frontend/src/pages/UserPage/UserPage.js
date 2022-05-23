@@ -4,6 +4,7 @@ import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import NotFoundAlert from "../../components/NotFoundAlert/NotFoundAlert";
 import Spinner from "../../components/Spinner/Spinner";
 import {connect} from "react-redux";
+import {updateUser} from "../../api/apiCalls";
 
 class UserPage extends React.Component {
 
@@ -61,6 +62,26 @@ class UserPage extends React.Component {
         })
     }
 
+    onClickSaveHandler = () => {
+        const userId = this.props.loggedInUser.id;
+        const userUpdate = {
+            displayName: this.state.user.displayName
+        }
+        apiCalls.updateUser(userId, userUpdate)
+            .then(response => {
+                this.setState({
+                    inEditMode: false
+                })
+            })
+    }
+
+    // onChangeHandlers
+    onChangeDisplayNameHandler = (event) => {
+        const user = { ...this.state.user}
+        user.displayName = event.target.value
+        this.setState({ user })
+    }
+
     render() {
         let pageContent
         const isEditable = this.props.loggedInUser.username === this.props.match.params.username
@@ -74,6 +95,8 @@ class UserPage extends React.Component {
                 inEditMode={this.state.inEditMode}
                 onClickEdit={this.onClickEditHandler}
                 onClickCancel={this.onClickCancelHandler}
+                onClickSave={this.onClickSaveHandler}
+                onChangeDisplayName={this.onChangeDisplayNameHandler}
             />
 
         return (

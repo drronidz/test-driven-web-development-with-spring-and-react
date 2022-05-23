@@ -15,7 +15,7 @@ const ProfileCard = (props) => {
         </button>
 
     const saveButton = props.inEditMode &&
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={props.onClickSave}>
             <i className="fas fa-save"/>Save
         </button>
 
@@ -28,6 +28,7 @@ const ProfileCard = (props) => {
     const input = props.inEditMode &&
         <div style={{ marginTop: '10px' , marginBottom: '10px'}}>
             <Input
+                onChange={props.onChangeDisplayName}
                 value={displayName}
                 label={`Change Display Name for ${username}`}
             />
