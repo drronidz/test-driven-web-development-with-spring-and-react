@@ -1,5 +1,5 @@
 import React from "react";
-import {fireEvent, render, waitFor} from '@testing-library/react'
+import {fireEvent, queryByTestId, render, waitFor} from '@testing-library/react'
 import UserPage from './UserPage'
 import * as apiCalls from '../../api/apiCalls'
 import {Provider} from "react-redux";
@@ -14,6 +14,15 @@ const mockSuccessGetUser = {
         image: 'profile1.png'
     }
 }
+
+const mockSuccessUpdateUser = {
+    data: {
+        id: 1,
+        username: 'user1',
+        displayName: 'display1-update',
+        image: 'profile1-update.png',
+    },
+};
 
 const mockFailureGetUser = {
     response: {
@@ -202,6 +211,44 @@ describe('UserPage', () => {
                 const editButtonAfterClickingSave = queryByText('Edit')
                 expect(editButtonAfterClickingSave).toBeInTheDocument()
             })
+        })
+
+        it('returns to original displayName after its changed in edit mode but cancelled', async () => {
+            const { queryByText, container } = await setupForEdit()
+            const displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, { target : { value: 'display1-updated'}})
+
+            const cancelButton = queryByText('Cancel')
+            fireEvent.click(cancelButton)
+
+            const originalDisplayText = queryByText('display1@user1')
+            expect(originalDisplayText).toBeInTheDocument()
+        })
+
+        it('returns to last updated displayName when display is changed for another time but cancelled', async () => {
+            let editButtonAfterClickingSave
+            const { queryByText, container } = await setupForEdit()
+            let displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, { target : { value: 'display1-updated'}})
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => {
+                editButtonAfterClickingSave = queryByText('Edit')
+                fireEvent.click(editButtonAfterClickingSave)
+            })
+
+            displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, { target: { value : 'display1-update-second-time' } })
+
+            const cancelButton = queryByText('Cancel')
+            fireEvent.click(cancelButton)
+
+            const lastSavedData = container.querySelector('h4')
+
+            expect(lastSavedData).toHaveTextContent('display1-updated@user1')
         })
     })
 })
