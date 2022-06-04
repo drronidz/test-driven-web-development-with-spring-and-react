@@ -19,7 +19,7 @@ public class AppConfiguration {
     private String profileImageFolder = "profile";
     private String attachmentsFolder = "attachments";
 
-    public String getFullProfileImagePath() {
+    public String getFullProfileImagesPath() {
         return this.uploadPath +  "/" + this.profileImageFolder;
     }
 
