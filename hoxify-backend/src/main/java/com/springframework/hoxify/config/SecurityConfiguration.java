@@ -1,4 +1,4 @@
-package com.springframework.hoxify.security;
+package com.springframework.hoxify.config;
 
 /*
 PROJECT NAME : hoxify
@@ -7,6 +7,8 @@ Author Name : @ DRRONIDZ
 DATE : 5/7/2022 1:30 AM
 */
 
+import com.springframework.hoxify.security.AuthUserService;
+import com.springframework.hoxify.security.BasicAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
