@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/1.0")
 public class UserController {
@@ -60,7 +61,7 @@ public class UserController {
 
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
-    public UserVM updateUser(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdateVM) throws IOException {
+    public UserVM updateUser(@PathVariable long id, @Valid @RequestBody(required = false) UserUpdateVM userUpdateVM) throws IOException {
         return new UserVM(userService.update(id, userUpdateVM));
     }
 

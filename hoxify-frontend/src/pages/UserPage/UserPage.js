@@ -91,7 +91,8 @@ class UserPage extends React.Component {
                     inEditMode: false,
                     originalDisplayName: undefined,
                     pendingUpdateCall: false,
-                    user
+                    user,
+                    image: undefined
                 })
             })
             .catch(error => {
