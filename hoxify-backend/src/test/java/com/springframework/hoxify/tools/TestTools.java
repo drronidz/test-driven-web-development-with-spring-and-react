@@ -20,7 +20,7 @@ public class TestTools {
         user.setUsername("test-username");
         user.setDisplayName("test-display-name");
         user.setPassword("PAssword12");
-        user.setImage("profile-image.png");
+        user.setImage("profile-avatar.png");
         return user;
     }
 

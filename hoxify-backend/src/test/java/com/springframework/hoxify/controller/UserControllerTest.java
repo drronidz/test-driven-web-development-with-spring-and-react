@@ -10,6 +10,7 @@ import com.springframework.hoxify.tools.TestTools;
 import com.springframework.hoxify.tools.Tools;
 import com.springframework.hoxify.view.UserUpdateVM;
 import com.springframework.hoxify.view.UserVM;
+import org.apache.commons.io.FileUtils;
 import org.apiguardian.api.API;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,6 +29,8 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -456,6 +460,8 @@ public class UserControllerTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    
+
     @Test
     public void putUser_whenValidRequestBodyFromAuthorizedUser_displayNameUpdate() {
         User user = userService.save(createValidUser("user1"));
@@ -479,5 +485,25 @@ public class UserControllerTest {
         ResponseEntity<UserVM> responseEntity = putUser(user.getId(), requestEntity, UserVM.class);
 
         assertThat(responseEntity.getBody().getDisplayName()).isEqualTo(userUpdateVM.getDisplayName());
+    }
+
+    @Test
+    public void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_receiveUserVMWithRandomImageName() throws IOException {
+        User user = userService.save(createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        ClassPathResource imageResource = new ClassPathResource("profile.png");
+
+        UserUpdateVM userUpdateVM = createValidUserUpdateVM();
+
+        byte[] imageArray = FileUtils.readFileToByteArray(imageResource.getFile());
+        String imageString = Base64.getEncoder().encodeToString(imageArray);
+
+        userUpdateVM.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(userUpdateVM);
+        ResponseEntity<UserVM> responseEntity = putUser(user.getId(), requestEntity, UserVM.class);
+
+        assertThat(responseEntity.getBody().getImage()).isNotEqualTo("profile-image.png");
     }
 }
