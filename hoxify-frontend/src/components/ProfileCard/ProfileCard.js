@@ -39,6 +39,10 @@ const ProfileCard = (props) => {
                 value={displayName}
                 label={`Change Display Name for ${username}`}
             />
+            <input
+                style={{ marginTop: '10px' , marginBottom: '10px'}}
+                className="form-control"
+                type="file"/>
         </div>
 
     return (
