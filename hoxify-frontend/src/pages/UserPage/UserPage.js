@@ -14,7 +14,8 @@ class UserPage extends React.Component {
         isLoadingUser: false,
         inEditMode: false,
         originalDisplayName: undefined,
-        pendingUpdateCall: false
+        pendingUpdateCall: false,
+        image: undefined
     }
 
     componentDidMount() {
@@ -68,7 +69,8 @@ class UserPage extends React.Component {
         this.setState({
             user,
             inEditMode : false,
-            originalDisplayName: undefined
+            originalDisplayName: undefined,
+            image: undefined
         })
     }
 
@@ -110,6 +112,20 @@ class UserPage extends React.Component {
             originalDisplayName})
     }
 
+    onFileSelectHandler = (event) => {
+        if (event.target.files.length === 0) {
+            return
+        }
+        const file = event.target.files[0]
+        let reader = new FileReader()
+        reader.onloadend = () => {
+            this.setState({
+                image: reader.result
+            })
+        }
+        reader.readAsDataURL(file)
+    }
+
     render() {
         let pageContent
         const isEditable = this.props.loggedInUser.username === this.props.match.params.username
@@ -126,6 +142,8 @@ class UserPage extends React.Component {
                 onClickSave={this.onClickSaveHandler}
                 onChangeDisplayName={this.onChangeDisplayNameHandler}
                 pendingUpdateCall={this.state.pendingUpdateCall}
+                loadedImage={this.state.image}
+                onFileSelect={this.onFileSelectHandler}
             />
 
         return (

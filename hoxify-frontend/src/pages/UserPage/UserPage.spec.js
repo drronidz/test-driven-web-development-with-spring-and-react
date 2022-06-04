@@ -333,6 +333,65 @@ describe('UserPage', () => {
                 expect(saveButton).not.toBeDisabled()
             })
         })
+
+        it('displays the selected image in edit mode', async () => {
+            const { container } = await setupForEdit()
+
+            const inputs = container.querySelectorAll('input')
+            const uploadInput = inputs[1]
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                { type: 'image/png'})
+
+            fireEvent.change(uploadInput, {
+                target: {
+                   files: [file]
+                }
+            })
+
+            await waitFor(() => {
+                const image = container.querySelector('img')
+                expect(image.src).toContain('data:image/png;base64')
+            })
+        })
+
+        it('returns back to the original image even the new image to upload box but canceled', async () => {
+            const { queryByText, container } = await setupForEdit()
+
+            const inputs = container.querySelectorAll('input')
+            const uploadInput = inputs[1]
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                { type: 'image/png'})
+
+            fireEvent.change(uploadInput, {
+                target: {
+                    files: [file]
+                }
+            })
+            const cancelButton = queryByText('Cancel')
+            fireEvent.click(cancelButton)
+
+            await waitFor(() => {
+                const image = container.querySelector('img')
+                expect(image.src).toContain('/assets/default-avatar.png')
+            })
+        })
+
+        it('does not throw error after file not selected', async () => {
+            const { container }  = await setupForEdit()
+            const inputs = container.querySelectorAll('input')
+            const uploadInput = inputs[1]
+            expect(() => fireEvent.change(uploadInput, {
+                target: {
+                    files: []
+                }
+            })).not.toThrow()
+        })
     })
 })
 

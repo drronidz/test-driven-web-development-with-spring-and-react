@@ -42,7 +42,9 @@ const ProfileCard = (props) => {
             <input
                 style={{ marginTop: '10px' , marginBottom: '10px'}}
                 className="form-control"
-                type="file"/>
+                type="file"
+                onChange={props.onFileSelect}
+            />
         </div>
 
     return (
@@ -54,6 +56,7 @@ const ProfileCard = (props) => {
                     width="200"
                     height="200"
                     image={image}
+                    src={props.loadedImage}
                 />
             </div>
             <div className="card-body text-center">
