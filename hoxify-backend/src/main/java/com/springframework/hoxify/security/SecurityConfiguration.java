@@ -1,4 +1,4 @@
-package com.springframework.hoxify.config;
+package com.springframework.hoxify.security;
 
 /*
 PROJECT NAME : hoxify

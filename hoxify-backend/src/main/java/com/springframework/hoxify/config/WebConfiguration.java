@@ -27,12 +27,12 @@ public class WebConfiguration implements WebMvcConfigurer {
     AppConfiguration appConfiguration;
 
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        // Can just allow `methods` that you need.
-        registry.addMapping("/**").allowedMethods("*");
-
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        // Can just allow `methods` that you need.
+//        registry.addMapping("/**").allowedMethods("*");
+//
+//    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
