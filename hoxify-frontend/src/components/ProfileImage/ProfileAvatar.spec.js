@@ -35,4 +35,8 @@ describe('ProfileAvatar', () => {
         const image = container.querySelector('img')
         expect(image.src).toContain('/img-from-src.png')
     })
+
+    it('enables save button after updateUser API call success', async () => {
+        const { queryByText, container } = await setupForEdit()
+    })
 })

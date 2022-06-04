@@ -1,6 +1,7 @@
 import React from 'react';
 import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 import Input from "../Input/Input";
+import Spinner from "../Spinner/Spinner";
 
 const ProfileCard = (props) => {
     const { displayName, username, image } = props.user
@@ -15,12 +16,18 @@ const ProfileCard = (props) => {
         </button>
 
     const saveButton = props.inEditMode &&
-        <button className="btn btn-primary" onClick={props.onClickSave}>
+        <button
+            className="btn btn-primary"
+            onClick={props.onClickSave}
+            disabled={props.pendingUpdateCall}>
+            {props.pendingUpdateCall && <Spinner/>}
             <i className="fas fa-save"/>Save
         </button>
 
     const cancelButton = props.inEditMode &&
-        <button className="btn btn-primary" onClick={props.onClickCancel}>
+        <button className="btn btn-primary"
+                onClick={props.onClickCancel}
+                disabled={props.pendingUpdateCall}>
             <i className="fas fa-window-close"/>Cancel
         </button>
 
