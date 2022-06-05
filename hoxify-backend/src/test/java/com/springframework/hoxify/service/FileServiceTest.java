@@ -50,6 +50,14 @@ public class FileServiceTest {
         assertThat(fileType).isEqualToIgnoringCase("image/png");
     }
 
+    @Test
+    public void getType_whenJPGFileProvided_returnsImageJPG() throws IOException {
+        ClassPathResource resourceFile = new ClassPathResource("test-jpg.jpg");
+        byte[] fileArray = FileUtils.readFileToByteArray(resourceFile.getFile());
+        String fileType = fileService.getType(fileArray);
+        assertThat(fileType).isEqualToIgnoringCase("image/jpeg");
+    }
+
     @After
     public void cleanup() throws IOException {
         FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));

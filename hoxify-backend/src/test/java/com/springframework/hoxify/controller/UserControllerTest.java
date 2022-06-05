@@ -8,11 +8,9 @@ import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
-import com.springframework.hoxify.tools.Tools;
 import com.springframework.hoxify.view.UserUpdateVM;
 import com.springframework.hoxify.view.UserVM;
 import org.apache.commons.io.FileUtils;
-import org.apiguardian.api.API;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -42,7 +39,6 @@ import java.util.stream.IntStream;
 import static com.springframework.hoxify.tools.TestTools.createValidUser;
 import static com.springframework.hoxify.tools.TestTools.createValidUserUpdateVM;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 /*
@@ -576,5 +572,46 @@ public class UserControllerTest {
         HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
         ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Test
+    public void putUser_withValidRequestBodyWithJPGImageFromAuthorizedUser_receiveOK() throws IOException {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM updatedUser = createValidUserUpdateVM();
+        String imageString = readFileToBase64("test-jpg.jpg");
+        updatedUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void putUser_withValidRequestBodyWithGIFImageFromAuthorizedUser_receiveBadRequest() throws IOException {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM updatedUser = createValidUserUpdateVM();
+        String imageString = readFileToBase64("testGIF.gif");
+        updatedUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void putUser_withValidRequestBodyWithTXTImageFromAuthorizedUser_receiveValidationErrorForProfileImage() throws IOException {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM updatedUser = createValidUserUpdateVM();
+        String imageString = readFileToBase64("test-txt.txt");
+        updatedUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<ApiError> response = putUser(user.getId(), requestEntity, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        assertThat(validationErrors.get("image")).isEqualTo("Only PNG and JPEG/JPG files are allowed");
     }
 }
