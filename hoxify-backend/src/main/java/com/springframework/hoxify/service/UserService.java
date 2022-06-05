@@ -64,6 +64,7 @@ public class UserService {
         User userInDB = userRepository.getOne(id);
         userInDB.setDisplayName(userUpdateVM.getDisplayName());
         if(userUpdateVM.getImage() != null) {
+            fileService.deleteExistingProfileImage(userInDB.getImage());
             String savedImageName = fileService.saveProfileImage(userUpdateVM.getImage());
             userInDB.setImage(savedImageName);
         }
