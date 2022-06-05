@@ -41,11 +41,11 @@ const ProfileCard = (props) => {
                 hasError={props.errors.displayName && true}
                 error={props.errors.displayName}
             />
-            <input
-                style={{ marginTop: '10px' , marginBottom: '10px'}}
-                className="form-control"
+            <Input
                 type="file"
                 onChange={props.onFileSelect}
+                hasError={props.errors.image && true}
+                error={props.errors.image}
             />
         </div>
 

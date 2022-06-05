@@ -475,6 +475,19 @@ describe('UserPage', () => {
                 expect(errorMessage).toBeInTheDocument()
             })
         })
+
+        it('displays validation error for file when update API fails', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => {
+                const errorMessage = queryByText('Only PNG and JPEG files are allowed')
+                expect(errorMessage).toBeInTheDocument()
+            })
+        })
     })
 })
 
