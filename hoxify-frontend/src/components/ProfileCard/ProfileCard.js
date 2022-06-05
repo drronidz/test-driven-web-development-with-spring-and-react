@@ -38,6 +38,8 @@ const ProfileCard = (props) => {
                 onChange={props.onChangeDisplayName}
                 value={displayName}
                 label={`Change Display Name for ${username}`}
+                hasError={props.errors.displayName && true}
+                error={props.errors.displayName}
             />
             <input
                 style={{ marginTop: '10px' , marginBottom: '10px'}}
@@ -72,5 +74,9 @@ const ProfileCard = (props) => {
 
     );
 };
+
+ProfileCard.defaultProps = {
+    errors: {}
+}
 
 export default ProfileCard;
