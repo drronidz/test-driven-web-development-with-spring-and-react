@@ -4,15 +4,55 @@ import {Link} from "react-router-dom";
 import { connect } from 'react-redux'
 import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 
+
 class NavigationBar extends React.Component {
 
+    state = {
+        dropDownIsVisible: false
+    }
+
+    componentDidMount() {
+        document.addEventListener('click', this.onClickTracker)
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('click', this.onClickTracker)
+    }
+
+    onClickTracker = event => {
+        if (this.actionArea && !this.actionArea.contains(event.target)) {
+            this.setState({
+                dropDownIsVisible: false
+            })
+        }
+    }
+
+    onClickMyProfile = () => {
+        this.setState({
+            dropDownIsVisible: false
+        })
+    }
+
+    onClickDisplayNameHandler = () => {
+        this.setState({
+            dropDownIsVisible: true
+        })
+    }
+
     onClickLogout = () => {
+        this.setState({
+            dropDownIsVisible: false
+        })
 
         const action = {
             type: 'logout-success'
         }
 
         this.props.dispatch(action)
+    }
+
+    assignActionArea = area => {
+        this.actionArea = area
     }
 
     render() {
@@ -24,10 +64,16 @@ class NavigationBar extends React.Component {
         )
 
         if (this.props.user.isLoggedIn) {
+            let dropDownClass = 'p-0 shadow dropdown-menu'
+            if (this.state.dropDownIsVisible) {
+                dropDownClass += ' show'
+            }
             links = (
-                <ul className="nav navbar-nav ml-auto">
+                <ul className="nav navbar-nav ml-auto" ref={this.assignActionArea}>
                     <li className="nav-item dropdown">
-                        <div className="d-flex" style={{ cursor: 'pointer'}}>
+                        <div className="d-flex"
+                             style={{ cursor: 'pointer'}}
+                             onClick={this.onClickDisplayNameHandler}>
                             <ProfileAvatar
                                 className="rounded-circle m-auto"
                                 width="32"
@@ -38,8 +84,10 @@ class NavigationBar extends React.Component {
                                 {this.props.user.displayName}
                             </span>
                         </div>
-                        <div className="p-0 shadow dropdown-menu show">
-                            <Link to={`/${this.props.user.username}`} className="dropdown-item">
+                        <div className={dropDownClass} data-testid="drop-down-menu">
+                            <Link to={`/${this.props.user.username}`}
+                                  onClick={this.onClickMyProfile}
+                                  className="dropdown-item">
                                 <i className="fas fa-user text-info"/> My Profile
                             </Link>
                             <span className="dropdown-item"
