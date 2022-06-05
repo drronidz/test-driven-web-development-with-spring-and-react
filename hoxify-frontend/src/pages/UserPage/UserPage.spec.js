@@ -5,6 +5,7 @@ import * as apiCalls from '../../api/apiCalls'
 import {Provider} from "react-redux";
 import configStore from "../../redux/configStore";
 import axios from "axios";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const mockSuccessGetUser = {
     data: {
@@ -486,6 +487,75 @@ describe('UserPage', () => {
             await waitFor(() => {
                 const errorMessage = queryByText('Only PNG and JPEG files are allowed')
                 expect(errorMessage).toBeInTheDocument()
+            })
+        })
+
+        it('removes validation error for displayName when user changes the displayName', async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+
+
+            await waitFor(() => {
+                const displayInput = container.querySelectorAll('input')[0]
+                fireEvent.change(displayInput, {
+                    target: {
+                        value: 'new-display-name'
+                    }
+                })
+                const errorMessage = queryByText('It must have minimum of 4 and maximum of 255 characters')
+                expect(errorMessage).not.toBeInTheDocument()
+            })
+        })
+
+        it('removes validation error for file when user changes the file', async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => {
+                const fileInput = container.querySelectorAll('input')[1]
+
+                const newFile = new File(['another content'], 'example2.png', {
+                    type: 'image/png'
+                })
+
+                fireEvent.change(fileInput, {
+                    target: {
+                        files: [newFile]
+                    }
+                })
+                const errorMessage = queryByText('Only PNG and JPEG files are allowed')
+                expect(errorMessage).not.toBeInTheDocument()
+            })
+        })
+
+        it('removes validation error if user cancels', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            let cancelButton
+            let editButton
+
+            fireEvent.click(saveButton)
+
+            await waitFor(() => {
+                cancelButton = queryByText('Cancel')
+                editButton = queryByText('Edit')
+                fireEvent.click(cancelButton)
+                fireEvent.click(editButton)
+            })
+
+
+            await  waitFor(() => {
+                const errorMessage = queryByText('It must have minimum of 4 and maximum of 255 characters')
+                expect(errorMessage).not.toBeInTheDocument()
             })
         })
     })
