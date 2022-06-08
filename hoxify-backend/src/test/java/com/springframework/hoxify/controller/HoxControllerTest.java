@@ -18,6 +18,10 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -107,5 +111,58 @@ public class HoxControllerTest {
 
         Hox hoxInDB = hoxRepository.findAll().get(0);
         assertThat(hoxInDB.getTimestamp()).isNotNull();
+    }
+
+    @Test
+    public void postHOX_whenHOXContentNullAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = new Hox();
+        ResponseEntity<Object> responseEntity = postHOX(hox, Object.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void postHOX_whenHOXContentLessThan10CharactersAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = new Hox();
+        hox.setContent("123456789");
+        ResponseEntity<Object> responseEntity = postHOX(hox, Object.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void postHOX_whenHOXContentIs5000CharactersAndUserIsAuthorized_receiveOK() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = new Hox();
+        String fiveThousandChars = IntStream.rangeClosed(1, 5000).mapToObj(i -> "x").collect(Collectors.joining());
+        hox.setContent(fiveThousandChars);
+        ResponseEntity<Object> responseEntity = postHOX(hox, Object.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void postHOX_whenHOXContentIsMoreThan5000CharactersAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = new Hox();
+        String fiveThousandChars = IntStream.rangeClosed(1, 5002)
+                .mapToObj(i -> "x")
+                .collect(Collectors.joining());
+        hox.setContent(fiveThousandChars);
+        ResponseEntity<Object> responseEntity = postHOX(hox, Object.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void postHOX_whenHOXContentNullAndUserIsAuthorized_receiveApiErrorWithValidationErrors() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = new Hox();
+        ResponseEntity<ApiError> responseEntity = postHOX(hox, ApiError.class);
+        Map<String, String> validationErrors = responseEntity.getBody().getValidationErrors();
+        assertThat(validationErrors.get("content")).isNotNull();
     }
 }
