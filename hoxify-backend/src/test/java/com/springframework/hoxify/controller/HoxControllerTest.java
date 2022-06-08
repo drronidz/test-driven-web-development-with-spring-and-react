@@ -2,6 +2,7 @@ package com.springframework.hoxify.controller;
 
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.Hox;
+import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.repository.HoxRepository;
 import com.springframework.hoxify.service.UserService;
@@ -164,5 +165,27 @@ public class HoxControllerTest {
         ResponseEntity<ApiError> responseEntity = postHOX(hox, ApiError.class);
         Map<String, String> validationErrors = responseEntity.getBody().getValidationErrors();
         assertThat(validationErrors.get("content")).isNotNull();
+    }
+
+    @Test
+    public void postHOX_whenHOXIsValidAndUserIsAuthorized_HOXSavedWithAuthenticatedUserInformation() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = TestTools.createValidHOX();
+        postHOX(hox, Object.class);
+
+        Hox hoxInDB = hoxRepository.findAll().get(0);
+        assertThat(hoxInDB.getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    public void postHOX_whenHOXIsValidAndUserIsAuthorized_HOXCanBeAccessedFromUserEntity() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = TestTools.createValidHOX();
+        postHOX(hox, Object.class);
+
+        User userInDB = userRepository.findByUsername("user1");
+        assertThat(userInDB.getHoxes().size()).isEqualTo(1);
     }
 }

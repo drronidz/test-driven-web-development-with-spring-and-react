@@ -8,6 +8,7 @@ DATE : 6/8/2022 2:34 PM
 */
 
 import com.springframework.hoxify.model.Hox;
+import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.HoxRepository;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,14 @@ public class HoxService {
         this.hoxRepository = hoxRepository;
     }
 
-    public void save(Hox hox) {
+//    public void save(Hox hox) {
+//        hox.setTimestamp(new Date());
+//        hoxRepository.save(hox);
+//    }
+
+    public void save(User user, Hox hox) {
         hox.setTimestamp(new Date());
+        hox.setUser(user);
         hoxRepository.save(hox);
     }
 }

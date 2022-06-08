@@ -9,7 +9,9 @@ DATE : 6/8/2022 1:52 PM
 
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.Hox;
+import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.HoxService;
+import com.springframework.hoxify.shared.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -33,8 +35,8 @@ public class HoxController {
     }
 
     @PostMapping("/hoxes")
-    public void createHOX(@Valid @RequestBody Hox hox) {
-        hoxService.save(hox);
+    public void createHOX(@Valid @RequestBody Hox hox, @CurrentUser User user) {
+        hoxService.save(user, hox);
     }
 
 }
