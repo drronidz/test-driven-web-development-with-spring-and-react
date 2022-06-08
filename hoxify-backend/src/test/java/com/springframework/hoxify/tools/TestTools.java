@@ -7,6 +7,7 @@ Author Name : @ DRRONIDZ
 DATE : 5/7/2022 3:45 PM
 */
 
+import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.view.UserUpdateVM;
 
@@ -34,6 +35,12 @@ public class TestTools {
         UserUpdateVM userUpdateVM = new UserUpdateVM();
         userUpdateVM.setDisplayName("newDisplayName");
         return userUpdateVM;
+    }
+
+    public static Hox createValidHOX() {
+        Hox hox = new Hox();
+        hox.setContent("test content for the test hox");
+        return hox;
     }
 
 }
