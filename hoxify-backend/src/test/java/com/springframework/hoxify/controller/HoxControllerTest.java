@@ -3,6 +3,7 @@ package com.springframework.hoxify.controller;
 import com.springframework.hoxify.error.ApiError;
 import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.repository.UserRepository;
+import com.springframework.hoxify.repository.HoxRepository;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.tools.TestTools;
 import org.junit.Before;
@@ -18,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 /*
@@ -43,8 +43,12 @@ public class HoxControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    HoxRepository hoxRepository;
+
     @Before
     public void cleanup() {
+        hoxRepository.deleteAll();
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
@@ -54,6 +58,10 @@ public class HoxControllerTest {
                 .getRestTemplate()
                 .getInterceptors()
                 .add(new BasicAuthenticationInterceptor(username, TestTools.TEST_PASSWORD));
+    }
+
+    private <T> ResponseEntity<T> postHOX(Hox hox, Class<T> responseType) {
+        return testRestTemplate.postForEntity(API_1_0_HOXES, hox, responseType);
     }
 
     @Test
@@ -81,7 +89,23 @@ public class HoxControllerTest {
                 .isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
-    private <T> ResponseEntity<T> postHOX(Hox hox, Class<T> responseType) {
-        return testRestTemplate.postForEntity(API_1_0_HOXES, hox, responseType);
+    @Test
+    public void postHOX_whenHOXIsValidAndUserIsAuthorized_HOXSavedToDataBase() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = TestTools.createValidHOX();
+        postHOX(hox, Object.class);
+        assertThat(hoxRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    public void postHOX_whenHOXIsValidAndUserIsAuthorized_HOXSavedToDataBaseWithTimestamp() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = TestTools.createValidHOX();
+        postHOX(hox, Object.class);
+
+        Hox hoxInDB = hoxRepository.findAll().get(0);
+        assertThat(hoxInDB.getTimestamp()).isNotNull();
     }
 }
