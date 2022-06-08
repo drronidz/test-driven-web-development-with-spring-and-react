@@ -18,7 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +55,9 @@ public class HoxControllerTest {
 
     @Autowired
     HoxRepository hoxRepository;
+
+    @PersistenceUnit
+    private EntityManagerFactory entityManagerFactory;
 
     @Before
     public void cleanup() {
@@ -180,12 +188,14 @@ public class HoxControllerTest {
 
     @Test
     public void postHOX_whenHOXIsValidAndUserIsAuthorized_HOXCanBeAccessedFromUserEntity() {
-        userService.save(TestTools.createValidUser("user1"));
+        User user = userService.save(TestTools.createValidUser("user1"));
         authenticate("user1");
         Hox hox = TestTools.createValidHOX();
         postHOX(hox, Object.class);
 
-        User userInDB = userRepository.findByUsername("user1");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        User userInDB = entityManager.find(User.class, user.getId());
         assertThat(userInDB.getHoxes().size()).isEqualTo(1);
     }
 }
