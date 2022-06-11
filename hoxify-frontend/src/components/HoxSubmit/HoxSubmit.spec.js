@@ -143,5 +143,135 @@ describe('HoxSubmit', () => {
 
             expect(queryByText('Test hox content')).not.toBeInTheDocument()
         });
+        it('disables Hoxify button when there is postHox api call', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve({})
+                    }, 300)
+                })
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            fireEvent.click(hoxifyButton)
+            expect(mockFunction).toHaveBeenCalledTimes(1)
+        });
+        it('disables Cancel button when there is postHox api call', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve({})
+                    }, 300)
+                })
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            const cancelButton = queryByText('Cancel')
+            expect(cancelButton).toBeDisabled()
+        });
+        it('displays spinner when there is a postHox API call', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve({})
+                    }, 300)
+                })
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            expect(queryByText('Loading...')).toBeInTheDocument()
+        });
+        it('enables Hoxify button when postHox API Call fails', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockRejectedValueOnce({
+                response: {
+                    data: {
+                        validationErrors: {
+                            content: 'It must have minimum 10 & maximum 5000 characters'
+                        }
+                    }
+                }
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            await waitFor(() => {
+                expect(queryByText('Hoxify')).not.toBeDisabled()
+            })
+        });
+        it('enables Cancel button when postHox API Call fails', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockRejectedValueOnce({
+                response: {
+                    data: {
+                        validationErrors: {
+                            content: 'It must have minimum 10 & maximum 5000 characters'
+                        }
+                    }
+                }
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            await waitFor(() => {
+                expect(queryByText('Cancel')).not.toBeDisabled()
+            })
+        });
+        it('enables Hoxify button after successful postHox action', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            apiCalls.postHox = jest.fn().mockResolvedValue({})
+            fireEvent.click(hoxifyButton)
+            fireEvent.focus(textArea)
+            await waitFor(() => {
+                expect(queryByText('Hoxify')).not.toBeInTheDocument()
+            })
+        });
     })
 })

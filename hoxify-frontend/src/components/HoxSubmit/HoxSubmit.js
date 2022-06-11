@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import ProfileAvatar from "../ProfileImage/ProfileAvatar";
+import ButtonWithProgress from "../ButtonWithSpinner/ButtonWithSpinner";
 import { connect } from 'react-redux'
 import * as apiCalls from '../../api/apiCalls'
 
 class HoxSubmit extends Component {
     state = {
         focused: false,
-        content: undefined
+        content: undefined,
+        pendingAPICall: false
     }
 
     onChangeContentHandler = (event) => {
@@ -21,13 +23,28 @@ class HoxSubmit extends Component {
 
     onClickHoxifyHandler = () => {
         const body = { content: this.state.content }
+        this.setState( prevState => {
+            return {
+                ...prevState,
+                pendingAPICall: true
+            }
+        })
         apiCalls.postHox(body)
             .then(response => {
                 this.setState(prevState => {
                     return {
                         ...prevState,
                         focused : !prevState.focused,
-                        content: ''
+                        content: '',
+                        pendingAPICall: false
+                    }
+                })
+            })
+            .catch((error) => {
+                this.setState(prevState => {
+                    return {
+                        ...prevState,
+                        pendingAPICall: false
                     }
                 })
             })
@@ -57,10 +74,19 @@ class HoxSubmit extends Component {
         const hoxifyAndCancelButtons =
             this.state.focused &&
             <div className="text-right mt-1">
-                <button className="btn btn-success"
-                        onClick={this.onClickHoxifyHandler}>Hoxify</button>
-                <button className="btn btn-light"
-                        onClick={this.onClickCancelHandler}>Cancel</button>
+                <ButtonWithProgress
+                    className="btn btn-success"
+                    disabled={this.state.pendingAPICall}
+                    onClick={this.onClickHoxifyHandler}
+                    pendingAPICall={this.state.pendingAPICall}
+                    text="Hoxify"
+                />
+                <button
+                    className="btn btn-light"
+                    disabled={this.state.pendingAPICall}
+                    onClick={this.onClickCancelHandler}>
+                    Cancel
+                </button>
             </div>
 
         return (
