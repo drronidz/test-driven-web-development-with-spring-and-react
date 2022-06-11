@@ -1,6 +1,7 @@
 import React from "react";
 import UserList from "../../components/UserList/UserList";
 import HoxSubmit from "../../components/HoxSubmit/HoxSubmit";
+import { connect } from 'react-redux'
 
 class HomePage extends React.Component {
 
@@ -9,7 +10,7 @@ class HomePage extends React.Component {
             <div data-testid="homepage">
                 <div className="row">
                     <div className="col-8">
-                        <HoxSubmit/>
+                        {this.props.loggedInUser.isLoggedIn &&  <HoxSubmit/>}
                     </div>
                     <div className="col-4">
                         <UserList/>
@@ -21,4 +22,10 @@ class HomePage extends React.Component {
     }
 }
 
-export default HomePage
+const mapStateToProps = state => {
+    return {
+        loggedInUser: state
+    }
+}
+
+export default connect(mapStateToProps)(HomePage)
