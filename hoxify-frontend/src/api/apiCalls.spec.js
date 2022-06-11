@@ -76,4 +76,14 @@ describe('apiCalls', () => {
             expect(path).toBe('/api/1.0/users/5')
         })
     })
+
+    describe('postHox', () => {
+        it('calls /api/1.0/hoxes', () => {
+            const mockPostHox = jest.fn()
+            axios.post = mockPostHox
+            apiCalls.postHox()
+            const path = mockPostHox.mock.calls[0][0]
+            expect(path).toBe('/api/1.0/hoxes')
+        })
+    })
 })

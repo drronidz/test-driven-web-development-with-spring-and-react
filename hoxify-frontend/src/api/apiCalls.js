@@ -31,3 +31,7 @@ export const updateUser = (userId, body) => {
     return axios.put('/api/1.0/users/' + userId, body)
 }
 
+export const postHox = (user) => {
+    return axios.post('/api/1.0/hoxes', user)
+}
+
