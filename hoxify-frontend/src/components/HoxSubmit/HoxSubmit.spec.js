@@ -273,5 +273,94 @@ describe('HoxSubmit', () => {
                 expect(queryByText('Hoxify')).not.toBeInTheDocument()
             })
         });
+        it('displays validation errors when postHox API Call fails', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockRejectedValueOnce({
+                response: {
+                    data: {
+                        validationErrors: {
+                            content: 'It must have minimum 10 & maximum 5000 characters'
+                        }
+                    }
+                }
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+            await waitFor(() => {
+                const validationError =
+                    queryByText('It must have minimum 10 & maximum 5000 characters')
+                expect(validationError).toBeInTheDocument()
+            })
+        });
+        it('clears validation errors after clicking Cancel button', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockRejectedValueOnce({
+                response: {
+                    data: {
+                        validationErrors: {
+                            content: 'It must have minimum 10 & maximum 5000 characters'
+                        }
+                    }
+                }
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+
+            await waitFor(() => {})
+
+            fireEvent.click(queryByText('Cancel'))
+
+            await waitFor(() => {
+                const validationError =
+                    queryByText('It must have minimum 10 & maximum 5000 characters')
+                expect(validationError).not.toBeInTheDocument()
+            })
+        });
+        it('clears validation errors after changing content', async () => {
+            const { container, queryByText } = setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+            fireEvent.change(textArea, { target: { value: 'Test hox content'}})
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            const mockFunction = jest.fn().mockRejectedValueOnce({
+                response: {
+                    data: {
+                        validationErrors: {
+                            content: 'It must have minimum 10 & maximum 5000 characters'
+                        }
+                    }
+                }
+            })
+
+            apiCalls.postHox = mockFunction
+            fireEvent.click(hoxifyButton)
+
+
+            await waitFor(() => {})
+            fireEvent.change(textArea, { target: { value: 'Text hox content updated'}})
+
+            fireEvent.click(queryByText('Cancel'))
+
+            const validationError = queryByText('It must have minimum 10 & maximum 5000 characters')
+            expect(validationError).not.toBeInTheDocument()
+        });
     })
 })

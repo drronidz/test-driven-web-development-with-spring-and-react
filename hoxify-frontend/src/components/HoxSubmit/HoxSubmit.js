@@ -8,7 +8,8 @@ class HoxSubmit extends Component {
     state = {
         focused: false,
         content: undefined,
-        pendingAPICall: false
+        pendingAPICall: false,
+        errors: {}
     }
 
     onChangeContentHandler = (event) => {
@@ -16,7 +17,8 @@ class HoxSubmit extends Component {
         this.setState(prevState =>{
             return{
                 ...prevState,
-                content : value
+                content : value,
+                errors: {}
             }
         })
     }
@@ -41,10 +43,15 @@ class HoxSubmit extends Component {
                 })
             })
             .catch((error) => {
+                let errors = {}
+                if (error.response.data && error.response.data.validationErrors) {
+                    errors = error.response.data.validationErrors
+                }
                 this.setState(prevState => {
                     return {
                         ...prevState,
-                        pendingAPICall: false
+                        pendingAPICall: false,
+                        errors
                     }
                 })
             })
@@ -64,7 +71,8 @@ class HoxSubmit extends Component {
             return {
                 ...prevState,
                 focused : !prevState.focused,
-                content: ''
+                content: '',
+                errors: {}
             }
         })
     }
@@ -89,6 +97,10 @@ class HoxSubmit extends Component {
                 </button>
             </div>
 
+        let textAreaClassName = 'form-control w-100'
+        if (this.state.errors.content) {
+            textAreaClassName += ' is-invalid'
+        }
         return (
             <div className="card d-flex flex-row p-1">
                 <ProfileAvatar
@@ -99,12 +111,14 @@ class HoxSubmit extends Component {
                 />
                 <div className="flex-fill">
                     <textarea
-                        className="form-control w-100"
+                        className={textAreaClassName}
                         rows={this.state.focused ? 3 : 1}
                         onFocus={this.onFocusTextArea}
                         value={this.state.content}
                         onChange={this.onChangeContentHandler}
                     />
+                    {this.state.errors.content &&
+                    <span className="invalid-feedback">{this.state.errors.content}</span>}
                     {hoxifyAndCancelButtons}
                 </div>
             </div>
