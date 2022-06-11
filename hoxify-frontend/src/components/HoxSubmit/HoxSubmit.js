@@ -1,15 +1,42 @@
 import React, {Component} from 'react';
 import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 import { connect } from 'react-redux'
+import * as apiCalls from '../../api/apiCalls'
 
 class HoxSubmit extends Component {
     state = {
-        focused: false
+        focused: false,
+        content: undefined
+    }
+
+    onChangeContentHandler = (event) => {
+        const value = event.target.value
+        this.setState(prevState =>{
+            return{
+                ...prevState,
+                content : value
+            }
+        })
+    }
+
+    onClickHoxifyHandler = () => {
+        const body = { content: this.state.content }
+        apiCalls.postHox(body)
+            .then(response => {
+                this.setState(prevState => {
+                    return {
+                        ...prevState,
+                        focused : !prevState.focused,
+                        content: ''
+                    }
+                })
+            })
     }
 
     onFocusTextArea = () => {
-        this.setState(prevState =>{
-            return{
+        this.setState(prevState => {
+            return {
+                ...prevState,
                 focused : !prevState.focused
             }
         })
@@ -17,8 +44,10 @@ class HoxSubmit extends Component {
 
     onClickCancelHandler = () => {
         this.setState(prevState =>{
-            return{
-                focused : !prevState.focused
+            return {
+                ...prevState,
+                focused : !prevState.focused,
+                content: ''
             }
         })
     }
@@ -28,8 +57,10 @@ class HoxSubmit extends Component {
         const hoxifyAndCancelButtons =
             this.state.focused &&
             <div className="text-right mt-1">
-                <button className="btn btn-success">Hoxify</button>
-                <button className="btn btn-light" onClick={this.onClickCancelHandler}>Cancel</button>
+                <button className="btn btn-success"
+                        onClick={this.onClickHoxifyHandler}>Hoxify</button>
+                <button className="btn btn-light"
+                        onClick={this.onClickCancelHandler}>Cancel</button>
             </div>
 
         return (
@@ -45,6 +76,8 @@ class HoxSubmit extends Component {
                         className="form-control w-100"
                         rows={this.state.focused ? 3 : 1}
                         onFocus={this.onFocusTextArea}
+                        value={this.state.content}
+                        onChange={this.onChangeContentHandler}
                     />
                     {hoxifyAndCancelButtons}
                 </div>
