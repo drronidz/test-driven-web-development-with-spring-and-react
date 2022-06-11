@@ -13,10 +13,11 @@ const ProfileAvatar = (props) => {
 
     return (
         <img
+            alt=""
             src={avatarSource}
             {...props}
             onError={handleAvatarError}
-        />
+         />
     );
 };
 
