@@ -13,6 +13,8 @@ import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.shared.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -39,4 +41,8 @@ public class HoxController {
         hoxService.save(user, hox);
     }
 
+    @GetMapping("/hoxes")
+    public Page<?> getAllHoxes(Pageable pageable) {
+        return hoxService.getAllHoxes(pageable);
+    }
 }

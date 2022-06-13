@@ -5,7 +5,9 @@ import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.repository.HoxRepository;
+import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.service.UserService;
+import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
@@ -54,6 +58,9 @@ public class HoxControllerTest {
     UserRepository userRepository;
 
     @Autowired
+    HoxService hoxService;
+
+    @Autowired
     HoxRepository hoxRepository;
 
     @PersistenceUnit
@@ -76,6 +83,12 @@ public class HoxControllerTest {
     private <T> ResponseEntity<T> postHOX(Hox hox, Class<T> responseType) {
         return testRestTemplate.postForEntity(API_1_0_HOXES, hox, responseType);
     }
+
+    private <T> ResponseEntity<T> getHoxes(ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_HOXES, HttpMethod.GET, null, responseType);
+    }
+
+    // POST
 
     @Test
     public void postHOX_whenHOXIsValidAndUserIsAuthorized_receiveOK() {
@@ -146,7 +159,10 @@ public class HoxControllerTest {
         userService.save(TestTools.createValidUser("user1"));
         authenticate("user1");
         Hox hox = new Hox();
-        String fiveThousandChars = IntStream.rangeClosed(1, 5000).mapToObj(i -> "x").collect(Collectors.joining());
+        String fiveThousandChars = IntStream
+                .rangeClosed(1, 5000)
+                .mapToObj(i -> "x")
+                .collect(Collectors.joining());
         hox.setContent(fiveThousandChars);
         ResponseEntity<Object> responseEntity = postHOX(hox, Object.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -197,5 +213,29 @@ public class HoxControllerTest {
 
         User userInDB = entityManager.find(User.class, user.getId());
         assertThat(userInDB.getHoxes().size()).isEqualTo(1);
+    }
+
+    // GET
+
+    @Test
+    public void getHoxes_whenThereAreNoHoxes_receiveOK() {
+        ResponseEntity<Object> response = getHoxes(new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getHoxes_whenThereAreNoHoxes_receivePageWithZeroItems() {
+        ResponseEntity<TestPage<Object>> response = getHoxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    public void getHoxes_whenThereAreHoxes_receivePageWithItems() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        ResponseEntity<TestPage<Object>> response = getHoxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(3);
     }
 }

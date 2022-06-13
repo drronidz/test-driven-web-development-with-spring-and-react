@@ -12,6 +12,8 @@ import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.HoxRepository;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -36,5 +38,9 @@ public class HoxService {
         hox.setTimestamp(new Date());
         hox.setUser(user);
         hoxRepository.save(hox);
+    }
+
+    public Page<Hox> getAllHoxes(Pageable pageable) {
+        return hoxRepository.findAll(pageable);
     }
 }

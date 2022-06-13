@@ -7,6 +7,7 @@ Author Name : @ DRRONIDZ
 DATE : 6/8/2022 2:00 PM
 */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -31,5 +32,6 @@ public class Hox {
     private Date timestamp;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 }
