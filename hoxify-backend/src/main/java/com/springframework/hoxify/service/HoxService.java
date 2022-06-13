@@ -10,6 +10,7 @@ DATE : 6/8/2022 2:34 PM
 import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.HoxRepository;
+import com.springframework.hoxify.view.HoxVM;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,10 +35,10 @@ public class HoxService {
 //        hoxRepository.save(hox);
 //    }
 
-    public void save(User user, Hox hox) {
+    public Hox save(User user, Hox hox) {
         hox.setTimestamp(new Date());
         hox.setUser(user);
-        hoxRepository.save(hox);
+        return hoxRepository.save(hox);
     }
 
     public Page<Hox> getAllHoxes(Pageable pageable) {

@@ -9,6 +9,7 @@ import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
+import com.springframework.hoxify.view.HoxVM;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -215,6 +216,15 @@ public class HoxControllerTest {
         assertThat(userInDB.getHoxes().size()).isEqualTo(1);
     }
 
+    @Test
+    public void postHOX_whenHOXIsValidAndUserIsAuthorized_receiveHoxVM() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = TestTools.createValidHOX();
+        ResponseEntity<HoxVM> responseEntity = postHOX(hox, HoxVM.class);
+        assertThat(responseEntity.getBody().getUser().getUsername()).isEqualTo("user1");
+    }
+
     // GET
 
     @Test
@@ -237,5 +247,16 @@ public class HoxControllerTest {
         hoxService.save(user, TestTools.createValidHOX());
         ResponseEntity<TestPage<Object>> response = getHoxes(new ParameterizedTypeReference<TestPage<Object>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    public void getHoxes_whenThereAreHoxes_receivePageWithHoxVM() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<TestPage<HoxVM>> response =
+                getHoxes(new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+        HoxVM storedHoxVM = response.getBody().getContent().get(0);
+        assertThat(storedHoxVM.getUser().getUsername()).isEqualTo("user1");
     }
 }

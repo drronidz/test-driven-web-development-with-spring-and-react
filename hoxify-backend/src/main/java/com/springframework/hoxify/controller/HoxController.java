@@ -12,6 +12,7 @@ import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.shared.CurrentUser;
+import com.springframework.hoxify.view.HoxVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,12 +38,12 @@ public class HoxController {
     }
 
     @PostMapping("/hoxes")
-    public void createHOX(@Valid @RequestBody Hox hox, @CurrentUser User user) {
-        hoxService.save(user, hox);
+    public HoxVM createHOX(@Valid @RequestBody Hox hox, @CurrentUser User user) {
+        return new HoxVM(hoxService.save(user, hox));
     }
 
     @GetMapping("/hoxes")
-    public Page<?> getAllHoxes(Pageable pageable) {
-        return hoxService.getAllHoxes(pageable);
+    public Page<HoxVM> getAllHoxes(Pageable pageable) {
+        return hoxService.getAllHoxes(pageable).map(HoxVM::new);
     }
 }
