@@ -46,4 +46,9 @@ public class HoxController {
     public Page<HoxVM> getAllHoxes(Pageable pageable) {
         return hoxService.getAllHoxes(pageable).map(HoxVM::new);
     }
+
+    @GetMapping("/users/{username}/hoxes")
+    public Page<HoxVM> getHoxesOfUser(@PathVariable String username, Pageable pageable) {
+        return hoxService.getHoxesOfUser(username, pageable).map(HoxVM::new);
+    }
 }

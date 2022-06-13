@@ -10,9 +10,6 @@ DATE : 6/8/2022 2:34 PM
 import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.repository.HoxRepository;
-import com.springframework.hoxify.view.HoxVM;
-import net.bytebuddy.asm.Advice;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,9 +22,11 @@ import java.util.Date;
 public class HoxService {
 
     private final HoxRepository hoxRepository;
+    private final UserService userService;
 
-    public HoxService(HoxRepository hoxRepository) {
+    public HoxService(HoxRepository hoxRepository, UserService userService) {
         this.hoxRepository = hoxRepository;
+        this.userService = userService;
     }
 
 //    public void save(Hox hox) {
@@ -43,5 +42,10 @@ public class HoxService {
 
     public Page<Hox> getAllHoxes(Pageable pageable) {
         return hoxRepository.findAll(pageable);
+    }
+
+    public Page<Hox> getHoxesOfUser(String username, Pageable pageable) {
+        User userInDB = userService.getByUsername(username);
+        return hoxRepository.findByUser(userInDB, pageable);
     }
 }

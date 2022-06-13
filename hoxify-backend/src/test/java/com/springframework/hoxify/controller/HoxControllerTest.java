@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -87,6 +88,11 @@ public class HoxControllerTest {
 
     private <T> ResponseEntity<T> getHoxes(ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(API_1_0_HOXES, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> getHoxesOfUser(String username, ParameterizedTypeReference<T> responseType) {
+        String path = "/api/1.0/users/" + username + "/hoxes";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
     // POST
@@ -258,5 +264,66 @@ public class HoxControllerTest {
                 getHoxes(new ParameterizedTypeReference<TestPage<HoxVM>>() {});
         HoxVM storedHoxVM = response.getBody().getContent().get(0);
         assertThat(storedHoxVM.getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    public void getHoxesOfUser_whenUserExists_receiveOK() {
+        userService.save(TestTools.createValidUser("user1"));
+        ResponseEntity<Object> response = getHoxesOfUser("user1",
+                new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getHoxesOfUser_whenUserDoesNotExists_receiveNotFound() {
+        ResponseEntity<Object> response = getHoxesOfUser("unknown",
+                new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void getHoxesOfUser_whenUserExists_receivePageWithZeroHoxes() {
+        userService.save(TestTools.createValidUser("user1"));
+        ResponseEntity<TestPage<Object>> response = getHoxesOfUser("user1",
+                new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    public void getHoxesOfUser_whenUserExistsWithHox_receivePageWithHoxVM() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        ResponseEntity<TestPage<HoxVM>> response = getHoxesOfUser("user1",
+                new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+        HoxVM storedHox = response.getBody().getContent().get(0);
+        assertThat(storedHox.getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    public void getHoxesOfUser_whenUserExistsWithMultipleHoxes_receivePageWithMatchingHoxCount() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        ResponseEntity<TestPage<HoxVM>> response = getHoxesOfUser("user1",
+                new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    public void getHoxesOfUser_whenMultipleUserExistWithMultipleHoxes_receivePageWithMatchingHoxesCount() {
+        User userOneWithThreeHoxes = userService.save(TestTools.createValidUser("user1"));
+        IntStream.rangeClosed(1, 3).forEach( item -> {
+            hoxService.save(userOneWithThreeHoxes, TestTools.createValidHOX());
+        });
+
+        User userTwoWithFiveHoxes = userService.save(TestTools.createValidUser("user2"));
+        IntStream.rangeClosed(1, 5).forEach( item -> {
+            hoxService.save(userTwoWithFiveHoxes, TestTools.createValidHOX());
+        });
+
+        ResponseEntity<TestPage<HoxVM>> response = getHoxesOfUser(userTwoWithFiveHoxes.getUsername(),
+                new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(5);
     }
 }
