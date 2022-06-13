@@ -82,7 +82,6 @@ public class HoxControllerTest {
                 .add(new BasicAuthenticationInterceptor(username, TestTools.TEST_PASSWORD));
     }
 
-    // Settings
 
     private <T> ResponseEntity<T> postHOX(Hox hox, Class<T> responseType) {
         return testRestTemplate.postForEntity(API_1_0_HOXES, hox, responseType);
