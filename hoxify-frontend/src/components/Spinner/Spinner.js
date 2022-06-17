@@ -2,8 +2,8 @@ import React from "react";
 
 const Spinner = () => {
     return (
-        <div >
-            <div style={{justifyContent: "center"}} className="spinner-border">
+        <div className="d-flex">
+            <div style={{justifyContent: "center"}} className="spinner-border text-black-50 m-auto mt-3">
                 <span className="sr-only">Loading...</span>
             </div>
         </div>

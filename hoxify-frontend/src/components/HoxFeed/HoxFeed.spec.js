@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from '@testing-library/react'
+import {render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
 import HoxFeed from "./HoxFeed";
 import * as apiCalls from '../../api/apiCalls'
 
@@ -10,6 +10,29 @@ const setup = props => {
 const mockEmptyResponse = {
     data: {
         content: []
+    }
+}
+
+const mockSuccessGetHoxesSinglePage = {
+    data: {
+        content: [
+            {
+                id: 10,
+                content: 'This is the latest hox',
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: true,
+        last: true,
+        size: 5,
+        totalPages: 1
     }
 }
 
@@ -33,10 +56,41 @@ describe('HoxFeed', () => {
         });
     });
     describe('Layout', () => {
-        it('displays no hox message when the response has empty page', () => {
+        it('displays no hox message when the response has empty page', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockEmptyResponse)
             const { queryByText } = setup()
-            expect(queryByText('There are no hoxes')).toBeInTheDocument()
+            await waitFor(() => {
+                const message = queryByText('There are no hoxes')
+                expect(message).toBeInTheDocument()
+            })
+
         });
+        it('does not display no hox message when the response has page of hox', async () => {
+            apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesSinglePage)
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const message = queryByText('There are no hoxes')
+                expect(message).not.toBeInTheDocument()
+            })
+        });
+        it('displays spinner when loading the hoxes', () => {
+            apiCalls.loadHoxes = jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(mockSuccessGetHoxesSinglePage)
+                    }, 300)
+                })
+            })
+            const { queryByText } = setup()
+            expect(queryByText('Loading...')).toBeInTheDocument()
+        });
+        it('displays hox content', async () => {
+            apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesSinglePage)
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const hoxContent = queryByText('This is the latest hox')
+                expect(hoxContent).toBeInTheDocument()
+            })
+        })
     });
 })
