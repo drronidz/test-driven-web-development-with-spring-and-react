@@ -35,3 +35,10 @@ export const postHox = (user) => {
     return axios.post('/api/1.0/hoxes', user)
 }
 
+export const loadHoxes = (username = null) => {
+    const basePath = username
+        ? `/api/1.0/users/${username}/hoxes`
+        : '/api/1.0/hoxes'
+    return axios.get(basePath + '?page=0&size=5&sort=id,desc')
+}
+

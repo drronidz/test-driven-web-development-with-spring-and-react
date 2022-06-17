@@ -86,4 +86,21 @@ describe('apiCalls', () => {
             expect(path).toBe('/api/1.0/hoxes')
         })
     })
+
+    describe('loadHoxes', () => {
+        it('calls /api/1.0/hoxes?page=0&size=5&sort=id,desc when no param provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadHoxes()
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/hoxes?page=0&size=5&sort=id,desc')
+        });
+        it('calls /api/1.0/users/user1/hoxes?page=0&size=5&sort=id,desc when user param is provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadHoxes('user1')
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/users/user1/hoxes?page=0&size=5&sort=id,desc')
+        });
+    });
 })
