@@ -1,6 +1,7 @@
 import React from "react";
 import {render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
 import HoxView from "./HoxView";
+import { MemoryRouter } from 'react-router-dom'
 
 const setup = () => {
     const oneMinute = 60 * 1000
@@ -16,7 +17,10 @@ const setup = () => {
             image: 'profile1.png'
         }
     }
-    return render(<HoxView hox={hox}/>)
+    return render(
+        <MemoryRouter>
+            <HoxView hox={hox}/>
+        </MemoryRouter>)
 }
 
 describe('HoxView' , () => {
@@ -38,5 +42,10 @@ describe('HoxView' , () => {
             const { queryByText } = setup()
             expect(queryByText('1 minute ago')).toBeInTheDocument()
         })
+        it('has link to user page', () => {
+            const { container } = setup()
+            const anchor = container.querySelector('a')
+            expect(anchor.getAttribute('href')).toBe('/user1')
+        });
     })
 })

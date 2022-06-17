@@ -2,9 +2,14 @@ import React from "react";
 import {render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
 import HoxFeed from "./HoxFeed";
 import * as apiCalls from '../../api/apiCalls'
+import {MemoryRouter} from "react-router-dom";
 
 const setup = props => {
-    return render(<HoxFeed {...props}/>)
+    return render(
+        <MemoryRouter>
+            <HoxFeed {...props}/>
+        </MemoryRouter>
+    )
 }
 
 const mockEmptyResponse = {
