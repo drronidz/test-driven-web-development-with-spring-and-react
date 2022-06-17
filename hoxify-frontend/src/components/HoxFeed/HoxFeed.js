@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import * as apiCalls from '../../api/apiCalls'
 import Spinner from "../Spinner/Spinner";
+import HoxView from "../HoxView/HoxView";
 
 class HoxFeed extends Component {
     state = {
@@ -34,7 +35,7 @@ class HoxFeed extends Component {
         return (
             <div>
                 {this.state.page.content.map(hox => {
-                    return <span key={hox.id}>{hox.content}</span>
+                    return <HoxView key={hox.id} hox={hox}/>
                 })}
             </div>)
     }
