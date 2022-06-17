@@ -5,6 +5,7 @@ import NotFoundAlert from "../../components/NotFoundAlert/NotFoundAlert";
 import Spinner from "../../components/Spinner/Spinner";
 import {connect} from "react-redux";
 import {updateUser} from "../../api/apiCalls";
+import HoxFeed from "../../components/HoxFeed/HoxFeed";
 
 class UserPage extends React.Component {
 
@@ -177,7 +178,14 @@ class UserPage extends React.Component {
 
         return (
             <div data-testid="userpage">
-                {pageContent}
+                <div className="row">
+                    <div className="col">
+                        {pageContent}
+                    </div>
+                    <div className="col">
+                        <HoxFeed user={this.props.match.params.username}/>
+                    </div>
+                </div>
             </div>
         )
     }

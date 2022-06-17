@@ -89,6 +89,22 @@ const setup = (props) => {
     )
 }
 
+apiCalls.listUsers = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
+
+apiCalls.loadHoxes = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
+
 describe('UserPage', () => {
 
     describe('Layout', () => {

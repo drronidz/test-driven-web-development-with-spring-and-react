@@ -25,6 +25,14 @@ apiCalls.getUser = jest.fn().mockResolvedValue({
     }
 })
 
+apiCalls.loadHoxes = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
+
 const mockSuccessGetUser1 = {
     data: {
         id: 1,

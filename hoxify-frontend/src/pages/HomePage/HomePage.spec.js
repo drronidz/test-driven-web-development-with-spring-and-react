@@ -4,6 +4,7 @@ import HomePage from './HomePage'
 import { Provider } from 'react-redux'
 import { createStore} from "redux";
 import authReducer from "../../redux/authReducer";
+import * as apiCalls from '../../api/apiCalls'
 
 const defaultState = {
     id: 0,
@@ -24,6 +25,22 @@ const setup = (state = defaultState) => {
         </Provider>
     )
 }
+
+apiCalls.listUsers = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
+
+apiCalls.loadHoxes = jest.fn().mockResolvedValue({
+    data: {
+        content: [],
+        number: 0,
+        size: 3
+    }
+})
 
 describe('HomePage', () => {
     describe('Layout', () => {
