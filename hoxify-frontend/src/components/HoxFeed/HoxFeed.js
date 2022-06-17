@@ -18,6 +18,7 @@ class HoxFeed extends Component {
                     page: response.data,
                     isLoadingHoxes: false
                 })
+                console.log(response.data)
             })
     }
 
@@ -37,6 +38,8 @@ class HoxFeed extends Component {
                 {this.state.page.content.map(hox => {
                     return <HoxView key={hox.id} hox={hox}/>
                 })}
+
+                {!this.state.page.last && <div>Load More</div>}
             </div>)
     }
 }

@@ -41,6 +41,29 @@ const mockSuccessGetHoxesSinglePage = {
     }
 }
 
+const mockSuccessGetHoxesFirstOfMultiPage = {
+    data: {
+        content: [
+            {
+                id: 10,
+                content: 'This is the latest hox',
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: true,
+        last: false,
+        size: 5,
+        totalPages: 2
+    }
+}
+
 describe('HoxFeed', () => {
     describe('Lifecycle', () => {
         it('calls loadHoxes when it is rendered', () => {
@@ -97,5 +120,13 @@ describe('HoxFeed', () => {
                 expect(hoxContent).toBeInTheDocument()
             })
         })
+        it('displays load more when there are next pages', async () => {
+            apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                expect(loadMore).toBeInTheDocument()
+            })
+        });
     });
 })
