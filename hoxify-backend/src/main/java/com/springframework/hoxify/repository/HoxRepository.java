@@ -11,11 +11,15 @@ import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 public interface HoxRepository extends JpaRepository <Hox, Long> {
     Page<Hox> findByUser(User user, Pageable pageable);
     Page<Hox> findByIdLessThan(long id, Pageable pageable);
+    List<Hox> findByIdGreaterThan(long id, Sort sort);
     Page<Hox> findByIdLessThanAndUser(long id, User user, Pageable pageable);
 //    Page<Hox> findByUserUsername(String username, Pageable pageable);
 }

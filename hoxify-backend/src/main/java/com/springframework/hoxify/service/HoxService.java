@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequestMapping("/api/1.0")
@@ -56,5 +57,9 @@ public class HoxService {
     public Page<Hox> getOldHoxesOfUser(long id, String username, Pageable pageable) {
         User userInDB = userService.getByUsername(username);
         return hoxRepository.findByIdLessThanAndUser(id, userInDB, pageable);
+    }
+
+    public List<Hox> getNewHoxes(long id, Pageable pageable) {
+        return hoxRepository.findByIdGreaterThan(id, pageable.getSort());
     }
 }

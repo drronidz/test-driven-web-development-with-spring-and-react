@@ -30,6 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import java.lang.reflect.ParameterizedType;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +51,7 @@ DATE : 6/8/2022 1:52 PM
 public class HoxControllerTest {
 
     public static final String API_1_0_HOXES = "/api/1.0/hoxes";
+
     @Autowired
     TestRestTemplate testRestTemplate;
 
@@ -103,6 +105,11 @@ public class HoxControllerTest {
 
     private <T> ResponseEntity<T> getOldHoxesOfUser(long hoxId, String username, ParameterizedTypeReference<T> responseType) {
         String path = "/api/1.0/users/" + username + "/hoxes/" + hoxId + "?direction=before&page=0&size=5&sort=id,desc";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> getNewHoxes(long hoxId, ParameterizedTypeReference<T> responseType){
+        String path = API_1_0_HOXES + "/" + hoxId + "?direction=after&sort=id,desc";
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
@@ -420,7 +427,7 @@ public class HoxControllerTest {
     }
 
     @Test
-    public void getOldHoxesOfUser_whenUserExistAndThereAreHoxes_receivePageWithZeroItemsBeforeProvidedId() {
+    public void getOldHoxesOfUser_whenUserExistAndThereAreNoHoxes_receivePageWithZeroItemsBeforeProvidedId() {
         User user = userService.save(TestTools.createValidUser("user1"));
         hoxService.save(user, TestTools.createValidHOX());
         hoxService.save(user, TestTools.createValidHOX());
@@ -434,5 +441,35 @@ public class HoxControllerTest {
                 getOldHoxesOfUser(hoxFour.getId(), "user2", new ParameterizedTypeReference<TestPage<HoxVM>>() {});
 
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    public void getNewHox_whenThereAreHoxes_receiveListOfItemsAfterProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<List<Object>> response =
+                getNewHoxes(hoxFour.getId(), new ParameterizedTypeReference<List<Object>>() {});
+
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void getNewHoxes_whenThereAreHoxes_receiveListOfHoxVMAfterProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<List<HoxVM>> response =
+                getNewHoxes(hoxFour.getId(), new ParameterizedTypeReference<List<HoxVM>>() {});
+
+        assertThat(response.getBody().get(0).getDate()).isGreaterThan(0);
     }
 }
