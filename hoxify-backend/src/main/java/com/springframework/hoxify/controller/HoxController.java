@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +58,13 @@ public class HoxController {
     }
 
     @GetMapping("/hoxes/{id:[0-9]+}")
-    public ResponseEntity<?> getHoxesRelative(@PathVariable long id,
-                                        Pageable pageable,
-                                        @RequestParam(name="direction", defaultValue = "after")
-                                                          String direction) {
+    public ResponseEntity<?>
+    getHoxesRelative(@PathVariable long id,
+                     Pageable pageable,
+                     @RequestParam(name="direction", defaultValue = "after")
+                             String direction,
+                     @RequestParam(name="count", defaultValue = "false", required = false)
+                             boolean count) {
 //        if (!direction.equalsIgnoreCase("after")) {
 //            return ResponseEntity.ok(hoxService.getOldHoxes(id, pageable).map(HoxVM::new));
 //        }
@@ -71,6 +75,12 @@ public class HoxController {
 //                    .collect(Collectors.toList());
 //            return ResponseEntity.ok(newHoxes);
 //        }
+
+        if (count == true) {
+            long newHoxCount = hoxService.getNewHoxesCount(id);
+            return ResponseEntity.ok(Collections.singletonMap("count", newHoxCount));
+        }
+
 
         return (!direction.equalsIgnoreCase("after")
                 ? ResponseEntity.ok(hoxService.getOldHoxes(id, pageable).map(HoxVM::new))
@@ -83,11 +93,17 @@ public class HoxController {
     }
 
     @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")
-    public ResponseEntity<?> getHoxesRelativeToUser(
-            @PathVariable String username,
-            @PathVariable long id,
+    public ResponseEntity<?>
+    getHoxesRelativeToUser(
+            @PathVariable
+                    String username,
+            @PathVariable
+                    long id,
             Pageable pageable,
-            @RequestParam(name="direction", defaultValue = "after") String direction) {
+            @RequestParam(name="direction", defaultValue = "after")
+                    String direction,
+            @RequestParam(name="count", defaultValue = "false", required = false)
+                    boolean count) {
 //        if (!direction.equalsIgnoreCase("after")) {
 //            return ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new));
 //        }
@@ -98,6 +114,11 @@ public class HoxController {
 //                    .collect(Collectors.toList());
 //            return ResponseEntity.ok(newHoxes);
 //        }
+
+        if (count == true) {
+            long newHoxCount = hoxService.getNewHoxesCountOfUser(id, username);
+            return ResponseEntity.ok(Collections.singletonMap("count",newHoxCount));
+        }
 
         return (!direction.equalsIgnoreCase("after")
                 ? ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new))

@@ -67,4 +67,13 @@ public class HoxService {
         User userInDB = userService.getByUsername(username);
         return hoxRepository.findByIdGreaterThanAndUser(id, userInDB, pageable.getSort());
     }
+
+    public long getNewHoxesCount(long id) {
+        return hoxRepository.countByIdGreaterThan(id);
+    }
+
+    public long getNewHoxesCountOfUser(long id, String username) {
+        User userInDB = userService.getByUsername(username);
+        return hoxRepository.countByIdGreaterThanAndUser(id, userInDB);
+    }
 }

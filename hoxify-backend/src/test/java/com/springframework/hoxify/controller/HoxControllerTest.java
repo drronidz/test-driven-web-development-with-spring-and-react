@@ -118,6 +118,16 @@ public class HoxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    private <T> ResponseEntity<T> getNewHoxCount(long hoxId, ParameterizedTypeReference<T> responseType) {
+        String path = API_1_0_HOXES + "/" + hoxId + "?direction=after&count=true";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> getNewHoxCountUser(long hoxId, String username, ParameterizedTypeReference<T> responseType) {
+        String path = "/api/1.0/users/" + username + "/hoxes/" + hoxId + "?direction=after&count=true";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     // POST
 
     @Test
@@ -538,5 +548,37 @@ public class HoxControllerTest {
                 getNewHoxesOfUser(hoxFour.getId(), "user2", new ParameterizedTypeReference<List<HoxVM>>() {});
 
         assertThat(response.getBody().size()).isEqualTo(0);
+    }
+
+    @Test
+    public void getNewHoxCount_whenThereAreHoxes_receiveCountAfterProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<Map<String, Long>> response =
+                getNewHoxCount(hoxFour.getId(), new ParameterizedTypeReference<Map<String, Long>>() {});
+
+        assertThat(response.getBody().get("count")).isEqualTo(1);
+    }
+
+    @Test
+    public void getNewHoxCountOfUser_whenThereAreHoxes_receiveCountAfterProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<Map<String, Long>> response =
+                getNewHoxCountUser(
+                        hoxFour.getId(), "user1",
+                        new ParameterizedTypeReference<Map<String, Long>>() {});
+
+        assertThat(response.getBody().get("count")).isEqualTo(1);
     }
 }
