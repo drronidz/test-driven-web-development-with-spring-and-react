@@ -13,10 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface HoxRepository extends JpaRepository <Hox, Long> {
+public interface HoxRepository extends JpaRepository <Hox, Long>, JpaSpecificationExecutor<Hox> {
     Page<Hox> findByUser(User user, Pageable pageable);
     Page<Hox> findByIdLessThan(long id, Pageable pageable);
     List<Hox> findByIdGreaterThan(long id, Sort sort);

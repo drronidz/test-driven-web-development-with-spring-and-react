@@ -57,9 +57,10 @@ public class HoxController {
         return hoxService.getHoxesOfUser(username, pageable).map(HoxVM::new);
     }
 
-    @GetMapping("/hoxes/{id:[0-9]+}")
+    @GetMapping({"/hoxes/{id:[0-9]+}", "/users/{username}/hoxes/{id:[0-9]+}"})
     public ResponseEntity<?>
     getHoxesRelative(@PathVariable long id,
+                     @PathVariable(required = false) String username,
                      Pageable pageable,
                      @RequestParam(name="direction", defaultValue = "after")
                              String direction,
@@ -77,56 +78,56 @@ public class HoxController {
 //        }
 
         if (count == true) {
-            long newHoxCount = hoxService.getNewHoxesCount(id);
+            long newHoxCount = hoxService.getNewHoxesCount(id, username);
             return ResponseEntity.ok(Collections.singletonMap("count", newHoxCount));
         }
 
 
         return (!direction.equalsIgnoreCase("after")
-                ? ResponseEntity.ok(hoxService.getOldHoxes(id, pageable).map(HoxVM::new))
+                ? ResponseEntity.ok(hoxService.getOldHoxes(id, username, pageable).map(HoxVM::new))
                 : ResponseEntity.ok(
-                hoxService.getNewHoxes(id, pageable)
+                hoxService.getNewHoxes(id, username, pageable)
                         .stream()
                         .map(HoxVM::new)
                         .collect(Collectors.toList())
         ));
     }
 
-    @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")
-    public ResponseEntity<?>
-    getHoxesRelativeToUser(
-            @PathVariable
-                    String username,
-            @PathVariable
-                    long id,
-            Pageable pageable,
-            @RequestParam(name="direction", defaultValue = "after")
-                    String direction,
-            @RequestParam(name="count", defaultValue = "false", required = false)
-                    boolean count) {
-//        if (!direction.equalsIgnoreCase("after")) {
-//            return ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new));
+//    @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")
+//    public ResponseEntity<?>
+//    getHoxesRelativeToUser(
+//            @PathVariable
+//                    String username,
+//            @PathVariable
+//                    long id,
+//            Pageable pageable,
+//            @RequestParam(name="direction", defaultValue = "after")
+//                    String direction,
+//            @RequestParam(name="count", defaultValue = "false", required = false)
+//                    boolean count) {
+////        if (!direction.equalsIgnoreCase("after")) {
+////            return ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new));
+////        }
+////        else {
+////            List<HoxVM> newHoxes = hoxService.getNewHoxesOfUser(id, username, pageable)
+////                    .stream()
+////                    .map(HoxVM::new)
+////                    .collect(Collectors.toList());
+////            return ResponseEntity.ok(newHoxes);
+////        }
+//
+//        if (count == true) {
+//            long newHoxCount = hoxService.getNewHoxesCountOfUser(id, username);
+//            return ResponseEntity.ok(Collections.singletonMap("count",newHoxCount));
 //        }
-//        else {
-//            List<HoxVM> newHoxes = hoxService.getNewHoxesOfUser(id, username, pageable)
-//                    .stream()
-//                    .map(HoxVM::new)
-//                    .collect(Collectors.toList());
-//            return ResponseEntity.ok(newHoxes);
-//        }
-
-        if (count == true) {
-            long newHoxCount = hoxService.getNewHoxesCountOfUser(id, username);
-            return ResponseEntity.ok(Collections.singletonMap("count",newHoxCount));
-        }
-
-        return (!direction.equalsIgnoreCase("after")
-                ? ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new))
-                : ResponseEntity.ok(hoxService.getNewHoxesOfUser(id, username, pageable)
-                .stream()
-                .map(HoxVM::new)
-                .collect(Collectors.toList()))
-        );
-
-    }
+//
+//        return (!direction.equalsIgnoreCase("after")
+//                ? ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new))
+//                : ResponseEntity.ok(hoxService.getNewHoxesOfUser(id, username, pageable)
+//                .stream()
+//                .map(HoxVM::new)
+//                .collect(Collectors.toList()))
+//        );
+//
+//    }
 }
