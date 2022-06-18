@@ -52,4 +52,9 @@ public class HoxService {
     public Page<Hox> getOldHoxes(long id, Pageable pageable) {
         return hoxRepository.findByIdLessThan(id, pageable);
     }
+
+    public Page<Hox> getOldHoxesOfUser(long id, String username, Pageable pageable) {
+        User userInDB = userService.getByUsername(username);
+        return hoxRepository.findByIdLessThanAndUser(id, userInDB, pageable);
+    }
 }

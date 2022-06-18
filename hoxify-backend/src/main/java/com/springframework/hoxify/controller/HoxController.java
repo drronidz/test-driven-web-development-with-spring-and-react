@@ -53,7 +53,15 @@ public class HoxController {
     }
 
     @GetMapping("/hoxes/{id:[0-9]+}")
-    public Page<?> getHoxesRelative(@PathVariable long id, Pageable pageable) {
+    public Page<HoxVM> getHoxesRelative(@PathVariable long id, Pageable pageable) {
         return hoxService.getOldHoxes(id, pageable).map(HoxVM::new);
+    }
+
+    @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")
+    public Page<HoxVM> getHoxesRelativeToUser(
+            @PathVariable String username,
+            @PathVariable long id,
+            Pageable pageable) {
+        return hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new);
     }
 }

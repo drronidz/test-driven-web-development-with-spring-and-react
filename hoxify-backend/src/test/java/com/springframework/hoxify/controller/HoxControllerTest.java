@@ -101,6 +101,11 @@ public class HoxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    private <T> ResponseEntity<T> getOldHoxesOfUser(long hoxId, String username, ParameterizedTypeReference<T> responseType) {
+        String path = "/api/1.0/users/" + username + "/hoxes/" + hoxId + "?direction=before&page=0&size=5&sort=id,desc";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     // POST
 
     @Test
@@ -368,5 +373,66 @@ public class HoxControllerTest {
                 getOldHoxes(hoxFour.getId(), new ParameterizedTypeReference<TestPage<HoxVM>>() {});
 
         assertThat(response.getBody().getContent().get(0).getDate()).isGreaterThan(0);
+    }
+
+    @Test
+    public void getOldHoxesOfUser_whenUserExistsThereAreNoHoxes_receiveOK() {
+        userService.save(TestTools.createValidUser("user1"));
+        ResponseEntity<Object> response =
+                getOldHoxesOfUser(5, "user1", new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getOldHoxesOfUser_whenUserExistsAndThereAreHoxes_receivePageWithHoxVMBeforeProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<TestPage<HoxVM>> response =
+                getOldHoxesOfUser(hoxFour.getId(), "user1", new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+
+        assertThat(response.getBody().getContent().get(0).getDate()).isGreaterThan(0);
+    }
+
+    @Test
+    public void getOldHoxesOfUser_whenUserExistAndThereAreHoxes_receivePageWithHoxVMBeforeProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<TestPage<HoxVM>> response =
+                getOldHoxesOfUser(hoxFour.getId(), "user1", new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+
+        assertThat(response.getBody().getContent().get(0).getDate()).isGreaterThan(0);
+    }
+
+    @Test
+    public void getOldHoxesOfUser_whenUserDoesNotExistsThereAreNoHoxes_receiveNotFound() {
+        ResponseEntity<Object> response = getOldHoxesOfUser(5, "user1", new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void getOldHoxesOfUser_whenUserExistAndThereAreHoxes_receivePageWithZeroItemsBeforeProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        userService.save(TestTools.createValidUser("user2"));
+
+        ResponseEntity<TestPage<HoxVM>> response =
+                getOldHoxesOfUser(hoxFour.getId(), "user2", new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
     }
 }
