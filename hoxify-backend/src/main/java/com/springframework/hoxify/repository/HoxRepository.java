@@ -15,5 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HoxRepository extends JpaRepository <Hox, Long> {
     Page<Hox> findByUser(User user, Pageable pageable);
+    Page<Hox> findByIdLessThan(long id, Pageable pageable);
 //    Page<Hox> findByUserUsername(String username, Pageable pageable);
 }

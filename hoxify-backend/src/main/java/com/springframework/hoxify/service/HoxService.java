@@ -48,4 +48,8 @@ public class HoxService {
         User userInDB = userService.getByUsername(username);
         return hoxRepository.findByUser(userInDB, pageable);
     }
+
+    public Page<Hox> getOldHoxes(long id, Pageable pageable) {
+        return hoxRepository.findByIdLessThan(id, pageable);
+    }
 }

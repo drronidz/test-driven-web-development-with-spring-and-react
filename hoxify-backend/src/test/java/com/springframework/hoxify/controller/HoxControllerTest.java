@@ -96,6 +96,11 @@ public class HoxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    private <T> ResponseEntity<T> getOldHoxes(long hoxId, ParameterizedTypeReference<T> responseType) {
+        String path = API_1_0_HOXES + "/" + hoxId + "?direction=before&page=0&size=5&sort=id,desc";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     // POST
 
     @Test
@@ -326,5 +331,42 @@ public class HoxControllerTest {
         ResponseEntity<TestPage<HoxVM>> response = getHoxesOfUser(userTwoWithFiveHoxes.getUsername(),
                 new ParameterizedTypeReference<TestPage<HoxVM>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(5);
+    }
+
+    @Test
+    public void getOldHoxes_whenThereAreNoHoxes_receiveOK() {
+        ResponseEntity<Object> response =
+                getOldHoxes(5, new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getOldHoxes_whenThereAreHoxes_receivePageWithItemsProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<TestPage<Object>> response =
+                getOldHoxes(hoxFour.getId(), new ParameterizedTypeReference<TestPage<Object>>() {});
+
+        assertThat(response.getBody()).isEqualTo(3);
+    }
+
+    @Test
+    public void getOldHoxes_whenThereAreHoxes_receivePageWithHoxVMBeforeProvidedId() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+        Hox hoxFour = hoxService.save(user, TestTools.createValidHOX());
+        hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<TestPage<HoxVM>> response =
+                getOldHoxes(hoxFour.getId(), new ParameterizedTypeReference<TestPage<HoxVM>>() {});
+
+        assertThat(response.getBody().getContent().get(0).getDate()).isGreaterThan(0);
     }
 }
