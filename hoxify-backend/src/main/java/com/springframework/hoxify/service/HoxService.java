@@ -62,4 +62,9 @@ public class HoxService {
     public List<Hox> getNewHoxes(long id, Pageable pageable) {
         return hoxRepository.findByIdGreaterThan(id, pageable.getSort());
     }
+
+    public List<Hox> getNewHoxesOfUser(long id, String username, Pageable pageable) {
+        User userInDB = userService.getByUsername(username);
+        return hoxRepository.findByIdGreaterThanAndUser(id, userInDB, pageable.getSort());
+    }
 }

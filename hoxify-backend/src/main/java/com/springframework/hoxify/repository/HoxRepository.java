@@ -21,5 +21,6 @@ public interface HoxRepository extends JpaRepository <Hox, Long> {
     Page<Hox> findByIdLessThan(long id, Pageable pageable);
     List<Hox> findByIdGreaterThan(long id, Sort sort);
     Page<Hox> findByIdLessThanAndUser(long id, User user, Pageable pageable);
+    List<Hox> findByIdGreaterThanAndUser(long id, User user, Sort sort);
 //    Page<Hox> findByUserUsername(String username, Pageable pageable);
 }

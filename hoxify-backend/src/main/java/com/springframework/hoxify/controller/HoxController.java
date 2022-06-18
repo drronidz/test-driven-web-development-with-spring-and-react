@@ -59,7 +59,8 @@ public class HoxController {
     @GetMapping("/hoxes/{id:[0-9]+}")
     public ResponseEntity<?> getHoxesRelative(@PathVariable long id,
                                         Pageable pageable,
-                                        @RequestParam(name="direction", defaultValue = "after") String direction) {
+                                        @RequestParam(name="direction", defaultValue = "after")
+                                                          String direction) {
 //        if (!direction.equalsIgnoreCase("after")) {
 //            return ResponseEntity.ok(hoxService.getOldHoxes(id, pageable).map(HoxVM::new));
 //        }
@@ -82,10 +83,29 @@ public class HoxController {
     }
 
     @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")
-    public Page<?> getHoxesRelativeToUser(
+    public ResponseEntity<?> getHoxesRelativeToUser(
             @PathVariable String username,
             @PathVariable long id,
-            Pageable pageable) {
-        return hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new);
+            Pageable pageable,
+            @RequestParam(name="direction", defaultValue = "after") String direction) {
+//        if (!direction.equalsIgnoreCase("after")) {
+//            return ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new));
+//        }
+//        else {
+//            List<HoxVM> newHoxes = hoxService.getNewHoxesOfUser(id, username, pageable)
+//                    .stream()
+//                    .map(HoxVM::new)
+//                    .collect(Collectors.toList());
+//            return ResponseEntity.ok(newHoxes);
+//        }
+
+        return (!direction.equalsIgnoreCase("after")
+                ? ResponseEntity.ok(hoxService.getOldHoxesOfUser(id, username, pageable).map(HoxVM::new))
+                : ResponseEntity.ok(hoxService.getNewHoxesOfUser(id, username, pageable)
+                .stream()
+                .map(HoxVM::new)
+                .collect(Collectors.toList()))
+        );
+
     }
 }
