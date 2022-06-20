@@ -22,6 +22,21 @@ class HoxFeed extends Component {
             })
     }
 
+    onClickLoadMoreHandler = () => {
+        const hoxes = this.state.page.content
+        if (hoxes.length !== 0 ) {
+            const hoxAtBottom = hoxes[ hoxes.length - 1 ]
+            apiCalls
+                .loadOldHoxes(hoxAtBottom.id, this.props.user)
+                .then(response => {
+                    const page = { ...this.state.page }
+                    page.content = [...page.content, ...response.data.content]
+                    page.last = response.data.last
+                    this.setState({ page })
+                })
+        }
+    }
+
     render() {
         if (this.state.isLoadingHoxes) {
             return <Spinner/>
@@ -39,7 +54,11 @@ class HoxFeed extends Component {
                     return <HoxView key={hox.id} hox={hox}/>
                 })}
 
-                {!this.state.page.last && <div>Load More</div>}
+                {!this.state.page.last &&
+                <div style={{cursor: 'pointer'}}
+                    onClick={this.onClickLoadMoreHandler}>
+                    Load More
+                </div>}
             </div>)
     }
 }

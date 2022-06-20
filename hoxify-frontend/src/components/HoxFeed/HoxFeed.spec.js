@@ -1,5 +1,5 @@
 import React from "react";
-import {render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
+import {fireEvent, render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
 import HoxFeed from "./HoxFeed";
 import * as apiCalls from '../../api/apiCalls'
 import {MemoryRouter} from "react-router-dom";
@@ -54,11 +54,45 @@ const mockSuccessGetHoxesFirstOfMultiPage = {
                     displayName: 'display1',
                     image: 'profile1.png'
                 }
+            },
+            {
+                id: 9,
+                content: 'This is the hox 9',
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
             }
         ],
         number: 0,
         first: true,
         last: false,
+        size: 5,
+        totalPages: 2
+    }
+}
+
+const mockSuccessGetHoxesLastOfMultiPage = {
+    data: {
+        content: [
+            {
+                id: 1,
+                content: 'This is the oldest hox',
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: true,
+        last: true,
         size: 5,
         totalPages: 2
     }
@@ -101,7 +135,7 @@ describe('HoxFeed', () => {
                 expect(message).not.toBeInTheDocument()
             })
         });
-        it('displays spinner when loading the hoxes', () => {
+        it('displays spinner when loading the hoxes', async () => {
             apiCalls.loadHoxes = jest.fn().mockImplementation(() => {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
@@ -111,6 +145,7 @@ describe('HoxFeed', () => {
             })
             const { queryByText } = setup()
             expect(queryByText('Loading...')).toBeInTheDocument()
+            await waitFor(() => {})
         });
         it('displays hox content', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesSinglePage)
@@ -127,6 +162,81 @@ describe('HoxFeed', () => {
                 const loadMore = queryByText('Load More')
                 expect(loadMore).toBeInTheDocument()
             })
+        });
+    });
+
+    describe('Interactions', () => {
+        it('calls loadOldHoxes with hox id when clicking on Load More', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                const firstParam = apiCalls.loadOldHoxes.mock.calls[0][0]
+                expect(firstParam).toBe(9)
+            })
+        });
+        it('calls loadOldHoxes with hox id & username when clicking on Load More when rendered with user property', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+
+            const { queryByText } = setup( {user : 'user1'})
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                expect(apiCalls.loadOldHoxes).toHaveBeenCalledWith(9, 'user1')
+            })
+        });
+        it('displays loaded old hox when loadOldHoxes API call success', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                const oldHox = queryByText('This is the oldest hox')
+                expect(oldHox).toBeInTheDocument()
+            })
+        });
+        it('hides Load More when loadOldHoxes API call returns last page', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+
+            const { queryByText } = setup()
+            let loadMore
+            await waitFor(() => {
+                loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+            })
+
+            await waitFor(() => {
+                queryByText('This is the oldest hox')
+                expect(queryByText('Load More')).not.toBeInTheDocument()
+            })
+
         });
     });
 })
