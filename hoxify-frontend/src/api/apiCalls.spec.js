@@ -103,4 +103,55 @@ describe('apiCalls', () => {
                 .toBeCalledWith('/api/1.0/users/user1/hoxes?page=0&size=5&sort=id,desc')
         });
     });
+
+    describe('loadOldHoxes', () => {
+        it('calls /api/1.0/hoxes/5?direction=before?&page=0&size=5&sort=id,desc when hox id param is provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadOldHoxes(5)
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/hoxes/5?direction=before?&page=0&size=5&sort=id,desc')
+        });
+        it('calls /api/1.0/users/user3/hoxes/5?direction=before?&page=0&size=5&sort=id,desc when hox id & username params are provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadOldHoxes(5, 'user3')
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/users/user3/hoxes/5?direction=before?&page=0&size=5&sort=id,desc')
+        });
+    });
+
+    describe('loadNewHoxes', () => {
+        it('calls /api/1.0/hoxes/5?direction=after?&page=0&size=5&sort=id,desc when hox id param is provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadNewHoxes(5)
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/hoxes/5?direction=after&sort=id,desc')
+        });
+        it('calls /api/1.0/users/user3/hoxes/5?direction=after?&sort=id,desc when hox id & username params are provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadNewHoxes(5, 'user3')
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/users/user3/hoxes/5?direction=after&sort=id,desc')
+        });
+    });
+
+    describe('loadNewHoxCount', () => {
+        it('calls /api/1.0/hoxes/5?direction=after&count=true when hox id param is provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadNewHoxCount(5)
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/hoxes/5?direction=after&count=true')
+        });
+        it('calls /api/1.0/users/user3/hoxes/5?direction=after?&sort=id,desc when hox id & username params are provided', () => {
+            const mockGetHoxes = jest.fn()
+            axios.get = mockGetHoxes
+            apiCalls.loadNewHoxes(5, 'user3')
+            expect(mockGetHoxes)
+                .toBeCalledWith('/api/1.0/users/user3/hoxes/5?direction=after&sort=id,desc')
+        });
+    });
 })

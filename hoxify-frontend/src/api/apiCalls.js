@@ -42,3 +42,27 @@ export const loadHoxes = (username = null) => {
     return axios.get(basePath + '?page=0&size=5&sort=id,desc')
 }
 
+export const loadOldHoxes = (hoxId, username = undefined) => {
+    const basePath = username
+        ? `/api/1.0/users/${username}/hoxes`
+        : `/api/1.0/hoxes`
+    const path = `${basePath}/${hoxId}?direction=before?&page=0&size=5&sort=id,desc`
+    return axios.get(path)
+}
+
+export const loadNewHoxes = (hoxId, username = undefined) => {
+    const basePath = username
+        ? `/api/1.0/users/${username}/hoxes`
+        : `/api/1.0/hoxes`
+    const path = `${basePath}/${hoxId}?direction=after&sort=id,desc`
+    return axios.get(path)
+}
+
+export const loadNewHoxCount = (hoxId, username = undefined) => {
+    const basePath = username
+        ? `/api/1.0/users/${username}/hoxes`
+        : `/api/1.0/hoxes`
+    const path = `${basePath}/${hoxId}?direction=after&count=true`
+    return axios.get(path)
+}
+
