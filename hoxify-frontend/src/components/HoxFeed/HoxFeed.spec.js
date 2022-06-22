@@ -1,9 +1,31 @@
 import React from "react";
-import {fireEvent, render, waitFor, waitForElementToBeRemoved} from '@testing-library/react'
+import {fireEvent, render, waitFor} from '@testing-library/react'
 import HoxFeed from "./HoxFeed";
 import * as apiCalls from '../../api/apiCalls'
 import {MemoryRouter} from "react-router-dom";
-import {wait} from "@testing-library/user-event/dist/utils";
+
+const originalSetInterval = window.setInterval
+const originalClearInterval = window.clearInterval
+
+let timedFunction
+
+const useFakeIntervals = () => {
+    window.setInterval = (callback, interval) => {
+        timedFunction = callback
+    }
+    window.clearInterval = () => {
+        timedFunction = undefined
+    }
+}
+
+const useRealIntervals = () => {
+    window.setInterval = originalSetInterval
+    window.clearInterval = originalClearInterval
+}
+
+const runTimer = () => {
+    timedFunction && timedFunction()
+}
 
 const setup = props => {
     return render(
@@ -118,6 +140,7 @@ describe('HoxFeed', () => {
             expect(parameter).toBeUndefined()
         });
         it('calls loadNewHoxCount with topHox id', async () => {
+            useFakeIntervals()
             apiCalls.loadOldHoxes = jest
                 .fn()
                 .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
@@ -132,9 +155,11 @@ describe('HoxFeed', () => {
             })
             const firstParam = apiCalls.loadNewHoxCount.mock.calls[0][0]
             expect(firstParam).toBe(10)
-        }, 7000);
+            useRealIntervals()
+        });
         it('calls loadNewHoxCount with topHox id and username when rendered with user property',
             async () => {
+            useFakeIntervals()
                 apiCalls.loadHoxes = jest
                     .fn()
                     .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
@@ -143,11 +168,13 @@ describe('HoxFeed', () => {
                     .mockResolvedValue({data: {count: 1}})
 
                 const {queryByText} = setup({user: 'user1'})
+                runTimer()
                 await waitFor(() => {
                     queryByText('There is 1 new hox')
                     expect(apiCalls.loadNewHoxCount).toHaveBeenCalledWith(10, 'user1')
+                    useRealIntervals()
                 })
-            }, 7000);
+            });
         it('displays new hox count as 1 after loadNewHoxCount success',
             async () => {
                 apiCalls.loadHoxes = jest
@@ -175,12 +202,12 @@ describe('HoxFeed', () => {
                 await waitFor(() => queryByText('There is 1 new hox'))
                 apiCalls.loadNewHoxCount = jest
                     .fn()
-                    .mockResolvedValue({ data: {count: 2 } })
+                    .mockResolvedValue({data: {count: 2}})
                 await waitFor(() => {
                     const newHoxCount = queryByText('There are 2 new hoxes')
                     expect(newHoxCount).toBeInTheDocument()
                 })
-        }, 7000)
+            }, 7000)
         it('does not call loadNewHoxCount after component is unmounted',
             async (done) => {
                 apiCalls.loadHoxes = jest
@@ -190,13 +217,15 @@ describe('HoxFeed', () => {
                     .fn()
                     .mockResolvedValue({data: {count: 1}})
                 const {queryByText, unmount} = setup({user: 'user1'})
-                await waitFor(() => {queryByText('This is 1 new hox')})
+                await waitFor(() => {
+                    queryByText('This is 1 new hox')
+                })
                 unmount()
                 setTimeout(() => {
                     expect(apiCalls.loadNewHoxCount).toHaveBeenCalledTimes(1)
                     done()
                 }, 3500)
-        }, 7000);
+            }, 7000);
 
     });
     describe('Layout', () => {
