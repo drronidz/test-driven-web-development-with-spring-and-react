@@ -58,6 +58,20 @@ class HoxFeed extends Component {
         }
     }
 
+    onClickLoadNewHandler = () => {
+        const hoxes = this.state.page.content
+        let topHoxId
+        if (hoxes.length > 0) {
+            topHoxId = hoxes[0].id
+        }
+        apiCalls.loadNewHoxes(topHoxId, this.props.user)
+            .then(response => {
+                const page = { ...this.state.page }
+                page.content = [...response.data, ...page.content]
+                this.setState({ page, newHoxCount: 0})
+            })
+    }
+
     render() {
         if (this.state.isLoadingHoxes) {
             return <Spinner/>
@@ -72,7 +86,9 @@ class HoxFeed extends Component {
         return (
             <div>
                 {this.state.newHoxCount > 0 && (
-                    <div className="card card-header text-center">
+                    <div className="card card-header text-center"
+                         style={{ cursor: 'pointer'}}
+                         onClick={this.onClickLoadNewHandler}>
                         {this.state.newHoxCount === 1
                             ? 'There is 1 new hox'
                             : `There is ${this.state.newHoxCount} new hoxes`}

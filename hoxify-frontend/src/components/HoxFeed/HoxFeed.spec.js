@@ -41,6 +41,22 @@ const mockEmptyResponse = {
     }
 }
 
+const mockSuccessGetNetHoxesList = {
+    data: [
+        {
+            id: 21,
+            content: 'This is the newest hox',
+            date: 1561294668539,
+            user: {
+                id: 1,
+                username: 'user1',
+                displayName: 'display1',
+                image: 'profile1.png'
+            }
+        }
+    ]
+}
+
 const mockSuccessGetHoxesSinglePage = {
     data: {
         content: [
@@ -347,6 +363,34 @@ describe('HoxFeed', () => {
             await waitFor(() => {
                 queryByText('This is the oldest hox')
                 expect(queryByText('Load More')).not.toBeInTheDocument()
+            })
+
+        });
+        // load new hoxes
+        it('calls loadNewHoxes with hox id when clicking new hox count card', async () => {
+            useFakeIntervals()
+
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadNewHoxCount = jest
+                .fn()
+                .mockResolvedValue({ data: { count: 1} })
+
+            apiCalls.loadNewHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetNetHoxesList)
+
+            const { queryByText } = setup()
+            await waitFor(() => {})
+            runTimer()
+            await waitFor(() => {
+                const newHoxCount = queryByText('There is 1 new hox')
+                fireEvent.click(newHoxCount)
+                const firstParam = apiCalls.loadNewHoxes.mock.calls[0][0]
+                expect(firstParam).toBe(9)
+                useRealIntervals()
             })
 
         });
