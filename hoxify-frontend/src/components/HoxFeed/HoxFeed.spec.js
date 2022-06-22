@@ -3,6 +3,7 @@ import {fireEvent, render, waitFor, waitForElementToBeRemoved} from '@testing-li
 import HoxFeed from "./HoxFeed";
 import * as apiCalls from '../../api/apiCalls'
 import {MemoryRouter} from "react-router-dom";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const setup = props => {
     return render(
@@ -107,7 +108,7 @@ describe('HoxFeed', () => {
         });
         it('calls loadHoxes with user parameter when it is rendered with user property', () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockEmptyResponse)
-            setup({ user: 'user1'})
+            setup({user: 'user1'})
             expect(apiCalls.loadHoxes).toHaveBeenCalledWith('user1')
         });
         it('calls loadHoxes without user parameter when it is rendered without user property', () => {
@@ -116,11 +117,92 @@ describe('HoxFeed', () => {
             const parameter = apiCalls.loadHoxes.mock.calls[0][0]
             expect(parameter).toBeUndefined()
         });
+        it('calls loadNewHoxCount with topHox id', async () => {
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadNewHoxCount = jest
+                .fn()
+                .mockResolvedValue({data: {count: 1}})
+
+            await waitFor(() => {
+                const {queryByText} = setup()
+                queryByText('This is the latest hox')
+            })
+            const firstParam = apiCalls.loadNewHoxCount.mock.calls[0][0]
+            expect(firstParam).toBe(10)
+        }, 7000);
+        it('calls loadNewHoxCount with topHox id and username when rendered with user property',
+            async () => {
+                apiCalls.loadHoxes = jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+                apiCalls.loadNewHoxCount = jest
+                    .fn()
+                    .mockResolvedValue({data: {count: 1}})
+
+                const {queryByText} = setup({user: 'user1'})
+                await waitFor(() => {
+                    queryByText('There is 1 new hox')
+                    expect(apiCalls.loadNewHoxCount).toHaveBeenCalledWith(10, 'user1')
+                })
+            }, 7000);
+        it('displays new hox count as 1 after loadNewHoxCount success',
+            async () => {
+                apiCalls.loadHoxes = jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+                apiCalls.loadNewHoxCount = jest
+                    .fn()
+                    .mockResolvedValue({data: {count: 1}})
+
+                const {queryByText} = setup({user: 'user1'})
+                await waitFor(() => {
+                    const newHoxCount = queryByText('There is 1 new hox')
+                    expect(newHoxCount).toBeInTheDocument()
+                })
+            });
+        it('displays new hox count constantly',
+            async () => {
+                apiCalls.loadHoxes = jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+                apiCalls.loadNewHoxCount = jest
+                    .fn()
+                    .mockResolvedValue({data: {count: 1}})
+                const {queryByText} = setup({user: 'user1'})
+                await waitFor(() => queryByText('There is 1 new hox'))
+                apiCalls.loadNewHoxCount = jest
+                    .fn()
+                    .mockResolvedValue({ data: {count: 2 } })
+                await waitFor(() => {
+                    const newHoxCount = queryByText('There are 2 new hoxes')
+                    expect(newHoxCount).toBeInTheDocument()
+                })
+        }, 7000)
+        it('does not call loadNewHoxCount after component is unmounted',
+            async (done) => {
+                apiCalls.loadHoxes = jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+                apiCalls.loadNewHoxCount = jest
+                    .fn()
+                    .mockResolvedValue({data: {count: 1}})
+                const {queryByText, unmount} = setup({user: 'user1'})
+                await waitFor(() => {queryByText('This is 1 new hox')})
+                unmount()
+                setTimeout(() => {
+                    expect(apiCalls.loadNewHoxCount).toHaveBeenCalledTimes(1)
+                    done()
+                }, 3500)
+        }, 7000);
+
     });
     describe('Layout', () => {
         it('displays no hox message when the response has empty page', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockEmptyResponse)
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const message = queryByText('There are no hoxes')
                 expect(message).toBeInTheDocument()
@@ -129,7 +211,7 @@ describe('HoxFeed', () => {
         });
         it('does not display no hox message when the response has page of hox', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesSinglePage)
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const message = queryByText('There are no hoxes')
                 expect(message).not.toBeInTheDocument()
@@ -143,13 +225,14 @@ describe('HoxFeed', () => {
                     }, 300)
                 })
             })
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             expect(queryByText('Loading...')).toBeInTheDocument()
-            await waitFor(() => {})
+            await waitFor(() => {
+            })
         });
         it('displays hox content', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesSinglePage)
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const hoxContent = queryByText('This is the latest hox')
                 expect(hoxContent).toBeInTheDocument()
@@ -157,7 +240,7 @@ describe('HoxFeed', () => {
         })
         it('displays load more when there are next pages', async () => {
             apiCalls.loadHoxes = jest.fn().mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const loadMore = queryByText('Load More')
                 expect(loadMore).toBeInTheDocument()
@@ -175,7 +258,7 @@ describe('HoxFeed', () => {
                 .fn()
                 .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
 
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const loadMore = queryByText('Load More')
                 fireEvent.click(loadMore)
@@ -192,7 +275,7 @@ describe('HoxFeed', () => {
                 .fn()
                 .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
 
-            const { queryByText } = setup( {user : 'user1'})
+            const {queryByText} = setup({user: 'user1'})
             await waitFor(() => {
                 const loadMore = queryByText('Load More')
                 fireEvent.click(loadMore)
@@ -208,7 +291,7 @@ describe('HoxFeed', () => {
                 .fn()
                 .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
 
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             await waitFor(() => {
                 const loadMore = queryByText('Load More')
                 fireEvent.click(loadMore)
@@ -225,7 +308,7 @@ describe('HoxFeed', () => {
                 .fn()
                 .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
 
-            const { queryByText } = setup()
+            const {queryByText} = setup()
             let loadMore
             await waitFor(() => {
                 loadMore = queryByText('Load More')

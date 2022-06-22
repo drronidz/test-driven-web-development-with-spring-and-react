@@ -8,18 +8,39 @@ class HoxFeed extends Component {
         page: {
             content: []
         },
-        isLoadingHoxes: false
+        isLoadingHoxes: false,
+        newHoxCount: 0
     }
     componentDidMount() {
         this.setState({ isLoadingHoxes: true})
         apiCalls.loadHoxes(this.props.user)
             .then(response => {
-                this.setState({
-                    page: response.data,
-                    isLoadingHoxes: false
-                })
-                console.log(response.data)
+                this.setState({ page: response.data, isLoadingHoxes: false },
+                    () => {
+                    this.counter = setInterval(this.checkCountHandler, 3000)
+                    })
             })
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.counter)
+    }
+
+    checkCountHandler = () => {
+        const hoxes = this.state.page.content
+        let topHoxId
+        if (hoxes.length > 0) {
+            topHoxId = hoxes[0].id
+        }
+
+        const topHox = hoxes[0]
+        apiCalls.loadNewHoxCount(topHoxId, this.props.user)
+            .then(response => {
+                this.setState({
+                    newHoxCount: response.data.count
+                })
+            })
+
     }
 
     onClickLoadMoreHandler = () => {
@@ -41,7 +62,7 @@ class HoxFeed extends Component {
         if (this.state.isLoadingHoxes) {
             return <Spinner/>
         }
-        if (this.state.page.content.length === 0) {
+        if (this.state.page.content.length === 0 && this.state.newHoxCount === 0) {
             return (
                 <div className="card card-header text-center">
                     There are no hoxes
@@ -50,6 +71,13 @@ class HoxFeed extends Component {
         }
         return (
             <div>
+                {this.state.newHoxCount > 0 && (
+                    <div className="card card-header text-center">
+                        {this.state.newHoxCount === 1
+                            ? 'There is 1 new hox'
+                            : `There is ${this.state.newHoxCount} new hoxes`}
+                    </div>
+                )}
                 {this.state.page.content.map(hox => {
                     return <HoxView key={hox.id} hox={hox}/>
                 })}
