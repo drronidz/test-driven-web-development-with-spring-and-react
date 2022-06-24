@@ -137,6 +137,29 @@ const mockSuccessGetHoxesLastOfMultiPage = {
     }
 }
 
+const mockSuccessGetHoxesMiddleOfMultiPage = {
+    data: {
+        content: [
+            {
+                id: 1,
+                content: 'This hox is in middle page',
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: false,
+        last: false,
+        size: 5,
+        totalPages: 2
+    }
+}
+
 describe('HoxFeed', () => {
     describe('Lifecycle', () => {
         it('calls loadHoxes when it is rendered', () => {
@@ -394,5 +417,78 @@ describe('HoxFeed', () => {
             })
 
         });
+        it('does not allow loadOldHoxes to be called when there is an active API call about it', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+            const {queryByText} = setup()
+
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                fireEvent.click(loadMore)
+                expect(apiCalls.loadOldHoxes).toHaveBeenCalledTimes(1)
+            })
+        });
+        it('replaces Load More with Spinner when there is an active API call about it', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadOldHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesLastOfMultiPage)
+            const {queryByText} = setup()
+
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                const spinner = queryByText('Loading...')
+                expect(spinner).toBeInTheDocument()
+                expect(queryByText('Load More')).not.toBeInTheDocument()
+            })
+        });
+        it('replaces Spinner with Load More after active api call for loadOldHoxes finishes', async () => {
+           apiCalls.loadHoxes = jest
+               .fn()
+               .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+            apiCalls.loadOldHoxes = jest.fn().mockImplementation(() => {
+                return new Promise(((resolve, reject) => {
+                    setTimeout(() => {resolve(mockSuccessGetHoxesMiddleOfMultiPage)}, 300)
+                }))
+            })
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                const middlePageHox = queryByText('This hox is in middle page')
+                expect(queryByText('Loading...')).not.toBeInTheDocument()
+                expect(queryByText('Load More')).toBeInTheDocument()
+            })
+        })
+        it('replaces Spinner with Load More after active api call finishes with error', async () => {
+            apiCalls.loadHoxes = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+            apiCalls.loadOldHoxes = jest.fn().mockImplementation(() => {
+                return new Promise(((resolve, reject) => {
+                    setTimeout(() => {
+                        reject({ response : { data: {}}})},
+                        300)
+                }))
+            })
+            const { queryByText } = setup()
+            await waitFor(() => {
+                const loadMore = queryByText('Load More')
+                fireEvent.click(loadMore)
+                queryByText('This hox is in middle page')
+                expect(queryByText('Loading...')).not.toBeInTheDocument()
+                expect(queryByText('Load More')).toBeInTheDocument()
+            })
+        })
     });
 })

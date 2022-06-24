@@ -9,7 +9,8 @@ class HoxFeed extends Component {
             content: []
         },
         isLoadingHoxes: false,
-        newHoxCount: 0
+        newHoxCount: 0,
+        isLoadingOldHoxes: false
     }
     componentDidMount() {
         this.setState({ isLoadingHoxes: true})
@@ -47,13 +48,17 @@ class HoxFeed extends Component {
         const hoxes = this.state.page.content
         if (hoxes.length !== 0 ) {
             const hoxAtBottom = hoxes[ hoxes.length - 1 ]
+            this.setState({ isLoadingOldHoxes : true })
             apiCalls
                 .loadOldHoxes(hoxAtBottom.id, this.props.user)
                 .then(response => {
                     const page = { ...this.state.page }
                     page.content = [...page.content, ...response.data.content]
                     page.last = response.data.last
-                    this.setState({ page })
+                    this.setState({ page, isLoadingOldHoxes: false})
+                })
+                .catch(error => {
+                    this.setState({ isLoadingOldHoxes: false})
                 })
         }
     }
@@ -99,10 +104,11 @@ class HoxFeed extends Component {
                 })}
 
                 {!this.state.page.last &&
-                <div style={{cursor: 'pointer'}}
-                    onClick={this.onClickLoadMoreHandler}>
-                    Load More
+                <div style={{cursor: this.state.isLoadingOldHoxes ? 'not-allowed' : 'pointer'}}
+                    onClick={!this.state.isLoadingOldHoxes && this.onClickLoadMoreHandler}>
+                    {this.state.isLoadingOldHoxes ? <Spinner/> : 'Load More'}
                 </div>}
+
             </div>)
     }
 }
