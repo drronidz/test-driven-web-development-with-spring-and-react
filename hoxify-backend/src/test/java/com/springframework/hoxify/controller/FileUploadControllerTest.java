@@ -1,6 +1,7 @@
 package com.springframework.hoxify.controller;
 
 import com.springframework.hoxify.config.AppConfiguration;
+import com.springframework.hoxify.model.FileAttachment;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.tools.TestTools;
@@ -99,5 +100,23 @@ public class FileUploadControllerTest {
     public void uploadFile_withImageFromUnauthorizedUser_receiveUnauthorized() {
         ResponseEntity<Object> response = uploadFile(getRequestEntity(), Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_receiveFileAttachmentWithDate() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<FileAttachment> response =
+                uploadFile(getRequestEntity(), FileAttachment.class);
+        assertThat(response.getBody().getDate()).isNotNull();
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_receiveFileAttachmentWithRandomName() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<FileAttachment> response = uploadFile(getRequestEntity(), FileAttachment.class);
+        assertThat(response.getBody().getName()).isNotNull();
+        assertThat(response.getBody().getName()).isNotEqualTo("profile.png");
     }
 }
