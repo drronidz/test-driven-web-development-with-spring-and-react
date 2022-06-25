@@ -115,8 +115,21 @@ public class FileUploadControllerTest {
     public void uploadFile_withImageFromAuthorizedUser_receiveFileAttachmentWithRandomName() {
         userService.save(TestTools.createValidUser("user1"));
         authenticate("user1");
-        ResponseEntity<FileAttachment> response = uploadFile(getRequestEntity(), FileAttachment.class);
+        ResponseEntity<FileAttachment> response =
+                uploadFile(getRequestEntity(), FileAttachment.class);
         assertThat(response.getBody().getName()).isNotNull();
         assertThat(response.getBody().getName()).isNotEqualTo("profile.png");
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_imageSavedToFolder() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<FileAttachment> response =
+                uploadFile(getRequestEntity(), FileAttachment.class);
+        String imagePath =
+                appConfiguration.getFullAttachmentsPath() + "/" + response.getBody().getName();
+        File storedImage = new File(imagePath);
+        assertThat(storedImage.exists()).isTrue();
     }
 }
