@@ -2,6 +2,7 @@ package com.springframework.hoxify.controller;
 
 import com.springframework.hoxify.config.AppConfiguration;
 import com.springframework.hoxify.model.FileAttachment;
+import com.springframework.hoxify.repository.FileAttachmentRepository;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.tools.TestTools;
@@ -45,6 +46,9 @@ public class FileUploadControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    FileAttachmentRepository fileAttachmentRepository;
 
     @Autowired
     UserService userService;
@@ -131,5 +135,22 @@ public class FileUploadControllerTest {
                 appConfiguration.getFullAttachmentsPath() + "/" + response.getBody().getName();
         File storedImage = new File(imagePath);
         assertThat(storedImage.exists()).isTrue();
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_fileAttachmentSaveToDB() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(getRequestEntity(), FileAttachment.class);
+        assertThat(fileAttachmentRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_fileAttachmentStoredWithFileType() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(getRequestEntity(), FileAttachment.class);
+        FileAttachment storedFile = fileAttachmentRepository.findAll().get(0);
+        assertThat(storedFile.getFileType()).isEqualTo("image/jpeg");
     }
 }
