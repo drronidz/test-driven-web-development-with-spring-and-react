@@ -7,8 +7,10 @@ Author Name : @ DRRONIDZ
 DATE : 6/8/2022 2:34 PM
 */
 
+import com.springframework.hoxify.model.FileAttachment;
 import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
+import com.springframework.hoxify.repository.FileAttachmentRepository;
 import com.springframework.hoxify.repository.HoxRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +18,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
 
@@ -28,10 +26,12 @@ import java.util.List;
 public class HoxService {
 
     private final HoxRepository hoxRepository;
+    private final FileAttachmentRepository fileAttachmentRepository;
     private final UserService userService;
 
-    public HoxService(HoxRepository hoxRepository, UserService userService) {
+    public HoxService(HoxRepository hoxRepository, FileAttachmentRepository fileAttachmentRepository, UserService userService) {
         this.hoxRepository = hoxRepository;
+        this.fileAttachmentRepository = fileAttachmentRepository;
         this.userService = userService;
     }
 
@@ -43,6 +43,13 @@ public class HoxService {
     public Hox save(User user, Hox hox) {
         hox.setTimestamp(new Date());
         hox.setUser(user);
+        if(hox.getAttachment() != null) {
+            FileAttachment fileAttachmentInDB =
+                    fileAttachmentRepository
+                            .findById(hox.getAttachment().getId()).get();
+            fileAttachmentInDB.setHox(hox);
+            hox.setAttachment(fileAttachmentInDB);
+        }
         return hoxRepository.save(hox);
     }
 

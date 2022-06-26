@@ -27,4 +27,7 @@ public class FileAttachment {
     private String name;
 
     private String fileType;
+
+    @OneToOne
+    private Hox hox;
 }

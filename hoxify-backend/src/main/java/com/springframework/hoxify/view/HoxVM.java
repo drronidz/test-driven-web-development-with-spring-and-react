@@ -22,10 +22,15 @@ public class HoxVM {
 
     private UserVM user;
 
+    private FileAttachmentVM attachment;
+
     public HoxVM(Hox hox) {
         this.setId(hox.getId());
         this.setContent(hox.getContent());
         this.setDate(hox.getTimestamp().getTime());
         this.setUser(new UserVM(hox.getUser()));
+        if (hox.getAttachment() != null) {
+            this.setAttachment(new FileAttachmentVM(hox.getAttachment()));
+        }
     }
 }

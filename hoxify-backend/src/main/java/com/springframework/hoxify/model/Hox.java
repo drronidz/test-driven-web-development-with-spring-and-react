@@ -33,4 +33,7 @@ public class Hox {
 
     @ManyToOne
     private User user;
+
+    @OneToOne(mappedBy = "hox")
+    private FileAttachment attachment;
 }

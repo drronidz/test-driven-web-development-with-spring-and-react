@@ -1,15 +1,21 @@
 package com.springframework.hoxify.controller;
 
+import com.springframework.hoxify.config.AppConfiguration;
 import com.springframework.hoxify.error.ApiError;
+import com.springframework.hoxify.model.FileAttachment;
 import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
+import com.springframework.hoxify.repository.FileAttachmentRepository;
 import com.springframework.hoxify.repository.UserRepository;
 import com.springframework.hoxify.repository.HoxRepository;
+import com.springframework.hoxify.service.FileService;
 import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.service.UserService;
 import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
 import com.springframework.hoxify.view.HoxVM;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,18 +23,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
@@ -59,22 +70,33 @@ public class HoxControllerTest {
     UserService userService;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     HoxService hoxService;
 
     @Autowired
+    FileService fileService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     HoxRepository hoxRepository;
+
+    @Autowired
+    FileAttachmentRepository fileAttachmentRepository;
+
+    @Autowired
+    AppConfiguration appConfiguration;
 
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
     @Before
-    public void cleanup() {
+    public void cleanup() throws IOException {
+        fileAttachmentRepository.deleteAll();
         hoxRepository.deleteAll();
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
     }
 
     private void authenticate(String username) {
@@ -82,6 +104,13 @@ public class HoxControllerTest {
                 .getRestTemplate()
                 .getInterceptors()
                 .add(new BasicAuthenticationInterceptor(username, TestTools.TEST_PASSWORD));
+    }
+
+    private MultipartFile createFile() throws IOException {
+        ClassPathResource imageResource = new ClassPathResource("profile.png");
+        byte[] fileAsByte = FileUtils.readFileToByteArray(imageResource.getFile());
+
+        return new MockMultipartFile("profile.png", fileAsByte);
     }
 
 
@@ -126,6 +155,12 @@ public class HoxControllerTest {
     private <T> ResponseEntity<T> getNewHoxCountUser(long hoxId, String username, ParameterizedTypeReference<T> responseType) {
         String path = "/api/1.0/users/" + username + "/hoxes/" + hoxId + "?direction=after&count=true";
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    @After
+    public void cleanUpAfter() {
+        fileAttachmentRepository.deleteAll();
+        hoxRepository.deleteAll();
     }
 
     // POST
@@ -262,6 +297,59 @@ public class HoxControllerTest {
         Hox hox = TestTools.createValidHOX();
         ResponseEntity<HoxVM> responseEntity = postHOX(hox, HoxVM.class);
         assertThat(responseEntity.getBody().getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    public void postHox_whenHoxHasFileAttachmentAndUserIsAuthorized_fileAttachmentHoxRelationIsUpdatedInDB() throws IOException {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment savedAttachment = fileService.saveAttachment(file);
+
+        Hox hox = TestTools.createValidHOX();
+        hox.setAttachment(savedAttachment);
+
+        ResponseEntity<HoxVM> responseEntity = postHOX(hox, HoxVM.class);
+
+        FileAttachment fileAttachmentInDB = fileAttachmentRepository.findAll().get(0);
+        assertThat(fileAttachmentInDB.getHox().getId()).isEqualTo(responseEntity.getBody().getId());
+    }
+
+    @Test
+    public void postHox_whenHoxHasFileAttachmentAndUserIsAuthorized_hoxFileAttachmentRelationIsUpdatedInDB() throws IOException {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment savedAttachment = fileService.saveAttachment(file);
+
+        Hox hox = TestTools.createValidHOX();
+        hox.setAttachment(savedAttachment);
+        ResponseEntity<HoxVM> responseEntity = postHOX(hox, HoxVM.class);
+
+        Hox hoxInDB = hoxRepository.findById(responseEntity.getBody().getId()).get();
+        assertThat(hoxInDB.getAttachment().getId()).isEqualTo(savedAttachment.getId());
+    }
+
+
+
+    @Test
+    public void postHox_whenHoxHasFileAttachmentAndUserIsAuthorized_receiveHoxVMWithAttachment() throws IOException {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment savedAttachment = fileService.saveAttachment(file);
+
+        Hox hox = TestTools.createValidHOX();
+        hox.setAttachment(savedAttachment);
+        ResponseEntity<HoxVM> responseEntity = postHOX(hox, HoxVM.class);
+
+        assertThat(responseEntity.getBody().getAttachment().getName()).isEqualTo(savedAttachment.getName());
     }
 
     // GET
