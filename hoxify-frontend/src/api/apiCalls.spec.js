@@ -154,4 +154,14 @@ describe('apiCalls', () => {
                 .toBeCalledWith('/api/1.0/users/user3/hoxes/5?direction=after&sort=id,desc')
         });
     });
+
+    describe('postHoxFile', () => {
+        it('calls /api/1.0/hoxes/upload', () => {
+            const mockPostHoxFile = jest.fn()
+            axios.post = mockPostHoxFile
+            apiCalls.postHoxFile()
+            const path = mockPostHoxFile.mock.calls[0][0]
+            expect(path).toBe('/api/1.0/hoxes/upload')
+        });
+    });
 })

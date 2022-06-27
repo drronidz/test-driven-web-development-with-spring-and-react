@@ -66,3 +66,7 @@ export const loadNewHoxCount = (hoxId, username = undefined) => {
     return axios.get(path)
 }
 
+export const postHoxFile = file => {
+    return axios.post('/api/1.0/hoxes/upload', file)
+}
+
