@@ -10,6 +10,9 @@ DATE : 6/25/2022 5:02 PM
 import com.springframework.hoxify.model.FileAttachment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FileAttachmentRepository extends JpaRepository<FileAttachment, Long> {
+import java.util.Date;
+import java.util.List;
 
+public interface FileAttachmentRepository extends JpaRepository<FileAttachment, Long> {
+    List<FileAttachment> findByDateBeforeAndHoxIsNull(Date date);
 }
