@@ -3,13 +3,16 @@ import ProfileAvatar from "../ProfileImage/ProfileAvatar";
 import ButtonWithProgress from "../ButtonWithSpinner/ButtonWithSpinner";
 import { connect } from 'react-redux'
 import * as apiCalls from '../../api/apiCalls'
+import Input from "../Input/Input";
 
 class HoxSubmit extends Component {
     state = {
         focused: false,
         content: undefined,
         pendingAPICall: false,
-        errors: {}
+        errors: {},
+        file: undefined,
+        image: undefined
     }
 
     onChangeContentHandler = (event) => {
@@ -21,6 +24,22 @@ class HoxSubmit extends Component {
                 errors: {}
             }
         })
+    }
+
+    onFileSelectHandler = event => {
+        if (event.target.files.length === 0) {
+            return
+        }
+
+        const file = event.target.files[0]
+        let reader = new FileReader()
+        reader.onloadend = () => {
+            this.setState({
+                image: reader.result,
+                file
+            })
+        }
+        reader.readAsDataURL(file)
     }
 
     onClickHoxifyHandler = () => {
@@ -72,7 +91,9 @@ class HoxSubmit extends Component {
                 ...prevState,
                 focused : !prevState.focused,
                 content: '',
-                errors: {}
+                errors: {},
+                image: undefined,
+                file: undefined
             }
         })
     }
@@ -81,20 +102,34 @@ class HoxSubmit extends Component {
     render() {
         const hoxifyAndCancelButtons =
             this.state.focused &&
-            <div className="text-right mt-1">
-                <ButtonWithProgress
-                    className="btn btn-success"
-                    disabled={this.state.pendingAPICall}
-                    onClick={this.onClickHoxifyHandler}
-                    pendingAPICall={this.state.pendingAPICall}
-                    text="Hoxify"
-                />
-                <button
-                    className="btn btn-light"
-                    disabled={this.state.pendingAPICall}
-                    onClick={this.onClickCancelHandler}>
-                    Cancel
-                </button>
+            <div>
+                <div className="pt-1">
+                    <Input type="file" onChange={this.onFileSelectHandler}/>
+                    {this.state.image && (
+                        <img
+                            className="mt-1 img-thumbnail"
+                            src={this.state.image}
+                            alt="upload"
+                            width="128"
+                            height="64"
+                        />
+                    )}
+                </div>
+                <div className="text-right mt-1">
+                    <ButtonWithProgress
+                        className="btn btn-success"
+                        disabled={this.state.pendingAPICall}
+                        onClick={this.onClickHoxifyHandler}
+                        pendingAPICall={this.state.pendingAPICall}
+                        text="Hoxify"
+                    />
+                    <button
+                        className="btn btn-light"
+                        disabled={this.state.pendingAPICall}
+                        onClick={this.onClickCancelHandler}>
+                        Cancel
+                    </button>
+                </div>
             </div>
 
         let textAreaClassName = 'form-control w-100'

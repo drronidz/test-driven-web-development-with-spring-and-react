@@ -5,6 +5,7 @@ import * as apiCalls from '../../api/apiCalls'
 import { Provider } from 'react-redux'
 import { createStore} from "redux";
 import authReducer from "../../redux/authReducer";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const defaultState = {
     id: 0,
@@ -50,23 +51,26 @@ describe('HoxSubmit', () => {
         });
     })
     describe('Interactions', () => {
-        it('displays 3 rows when focused on textarea', () => {
-            const { container } = setup()
-            const textArea = container.querySelector('textarea')
+
+        let textArea
+        const setupFocused = () => {
+            const rendered = setup()
+            textArea =  rendered.container.querySelector('textarea')
             fireEvent.focus(textArea)
+            return rendered
+        }
+
+        it('displays 3 rows when focused on textarea', () => {
+            setupFocused()
             expect(textArea.rows).toBe(3)
         });
         it('displays Hoxify button when focused to textArea', () => {
-            const { container, queryByText } = setup()
-            const textArea = container.querySelector('textarea')
-            fireEvent.focus(textArea)
+            const { queryByText } = setupFocused()
             const hoxifyButton = queryByText('Hoxify')
             expect(hoxifyButton).toBeInTheDocument()
         })
         it('displays Cancel button when focused to textArea', () => {
-            const { container, queryByText } = setup()
-            const textArea = container.querySelector('textarea')
-            fireEvent.focus(textArea)
+            const { queryByText } = setupFocused()
             const cancelButton = queryByText('Cancel')
             expect(cancelButton).toBeInTheDocument()
         })
@@ -89,9 +93,7 @@ describe('HoxSubmit', () => {
             expect(queryByText('Cancel')).not.toBeInTheDocument()
         });
         it('calls postHox with hox request object when clicking hoxify', () => {
-            const { container, queryByText } = setup()
-            const textArea = container.querySelector('textarea')
-            fireEvent.focus(textArea)
+            const { queryByText } = setupFocused()
             fireEvent.change(textArea, { target: { value: 'Test hox content'}})
 
             const hoxifyButton = queryByText('Hoxify')
@@ -104,9 +106,7 @@ describe('HoxSubmit', () => {
             })
         });
         it('returns back to unfocused state after successful postHox action', async () => {
-            const { container, queryByText } = setup()
-            const textArea = container.querySelector('textarea')
-            fireEvent.focus(textArea)
+            const { queryByText } = setupFocused()
             fireEvent.change(textArea, { target: { value: 'Test hox content'}})
 
             const hoxifyButton = queryByText('Hoxify')
@@ -361,6 +361,56 @@ describe('HoxSubmit', () => {
 
             const validationError = queryByText('It must have minimum 10 & maximum 5000 characters')
             expect(validationError).not.toBeInTheDocument()
+        });
+
+        it('displays file attachment input when text area focused', () => {
+            const { container }= setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+        });
+
+        it('displays image component when file selected', async () => {
+            const { container }= setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+
+            const uploadInput = container.querySelector('input')
+
+            const file = new File(
+                [ 'dummy content' ],
+                'example.png',
+                { type: 'image/png' })
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {})
+
+            const images = container.querySelectorAll('img')
+            const attachmentImage = images[1]
+            expect(attachmentImage.src).toContain('data:image/png;base64')
+        });
+
+        it('removes selected image after clicking cancel', async () => {
+            const { container, queryByText }= setup()
+            const textArea = container.querySelector('textarea')
+            fireEvent.focus(textArea)
+
+            const uploadInput = container.querySelector('input')
+            const file = new File(
+                [ 'dummy content' ],
+                'example.png',
+                { type: 'image/png' })
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {})
+
+            fireEvent.click(queryByText('Cancel'))
+            fireEvent.focus(textArea)
+
+            const images = container.querySelectorAll('img')
+            expect(images.length).toBe(1)
         });
     })
 })
