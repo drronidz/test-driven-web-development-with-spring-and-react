@@ -411,6 +411,187 @@ describe('HoxSubmit', () => {
 
             const images = container.querySelectorAll('img')
             expect(images.length).toBe(1)
+        })
+
+        it('calls postHoxFile when file selected', async () => {
+            apiCalls.postHoxFile = jest.fn().mockResolvedValue({
+                data: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+
+            const { container } = setupFocused()
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                {type: 'image/png'}
+                )
+
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {
+
+            })
+            expect(apiCalls.postHoxFile).toHaveBeenCalledWith(1)
+        });
+
+        it('calls postHoxFile with selected file', async (done) => {
+            apiCalls.postHoxFile = jest.fn().mockResolvedValue({
+                data: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+
+            const { container } = setupFocused()
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                {type: 'image/png'}
+            )
+
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {
+
+            })
+
+            const body = apiCalls.postHoxFile.mock.calls[0][0]
+
+            const reader = new FileReader()
+
+            reader.onloadend = () => {
+                expect(reader.result).toBe('dummy content')
+                done()
+            }
+
+            reader.readAsText(body.get('file'))
+        });
+
+        it('calls postHox with hox with file attachment object when clicking hoxifiy', async () => {
+            apiCalls.postHoxFile = jest.fn().mockResolvedValue({
+                data: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+            const { queryByText, container } = setupFocused()
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                {type: 'image/png'}
+            )
+
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {
+
+            })
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            apiCalls.postHox = jest.fn().mockResolvedValue({})
+            fireEvent.click(hoxifyButton)
+
+            expect(apiCalls.postHox).toHaveBeenCalledWith({
+                content: 'Test hox content',
+                attachment: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+        });
+
+        it('clears image after postHox success', async () => {
+            apiCalls.postHoxFile = jest.fn().mockResolvedValue({
+                data: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+            const { queryByText, container } = setupFocused()
+            fireEvent.change(textArea, { target: { value : 'Test Hox content'}})
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                {type: 'image/png'}
+            )
+
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {
+
+            })
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            apiCalls.postHox = jest.fn().mockResolvedValue({})
+            fireEvent.click(hoxifyButton)
+
+            await waitFor(() => {
+
+            })
+
+            fireEvent.focus(textArea)
+
+            const images = container.querySelectorAll('img')
+            expect(images.length).toBe(1)
+        });
+
+        it('calls postHox without file attachment after cancelling previous file selection', async () => {
+            apiCalls.postHoxFile = jest.fn().mockResolvedValue({
+                data: {
+                    id: 1,
+                    name: 'random-name.png'
+                }
+            })
+            const { queryByText, container } = setupFocused()
+            fireEvent.change(textArea, { target: { value : 'Test Hox content'}})
+
+            const uploadInput = container.querySelector('input')
+            expect(uploadInput.type).toBe('file')
+
+            const file = new File(
+                ['dummy content'],
+                'example.png',
+                {type: 'image/png'}
+            )
+
+            fireEvent.change(uploadInput, { target: { files: [file] } })
+
+            await waitFor(() => {
+
+            })
+
+            fireEvent.click(queryByText('Cancel'))
+            fireEvent.focus(textArea)
+
+            const hoxifyButton = queryByText('Hoxify')
+
+            apiCalls.postHox = jest.fn().mockResolvedValue({})
+            fireEvent.change(textArea, { target: { value: 'Test Hox conent' } })
+            fireEvent.click(hoxifyButton)
+
+            expect(apiCalls.postHox).toHaveBeenCalledWith({
+                content: 'Test Hox content'
+            })
         });
     })
 })

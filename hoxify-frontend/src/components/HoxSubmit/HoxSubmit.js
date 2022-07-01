@@ -8,11 +8,12 @@ import Input from "../Input/Input";
 class HoxSubmit extends Component {
     state = {
         focused: false,
-        content: undefined,
+        content: '',
         pendingAPICall: false,
         errors: {},
         file: undefined,
-        image: undefined
+        image: undefined,
+        attachment: undefined
     }
 
     onChangeContentHandler = (event) => {
@@ -37,13 +38,40 @@ class HoxSubmit extends Component {
             this.setState({
                 image: reader.result,
                 file
-            })
+            },
+                () => { this.uploadFileHandler() })
         }
         reader.readAsDataURL(file)
     }
 
+    uploadFileHandler = () => {
+        const body = new FormData()
+        body.append('file', this.state.file)
+        apiCalls.postHoxFile(body)
+            .then(response => {
+                this.setState({
+                    attachment: response.data
+                })
+            })
+    }
+
+    resetStateHandler = () => {
+        this.setState({
+            focused: false,
+            content: '',
+            pendingAPICall: false,
+            errors: {},
+            file: undefined,
+            image: undefined,
+            attachment: undefined
+        })
+    }
+
     onClickHoxifyHandler = () => {
-        const body = { content: this.state.content }
+        const body = {
+            content: this.state.content,
+            attachment: this.state.attachment
+        }
         this.setState( prevState => {
             return {
                 ...prevState,
@@ -52,13 +80,8 @@ class HoxSubmit extends Component {
         })
         apiCalls.postHox(body)
             .then(response => {
-                this.setState(prevState => {
-                    return {
-                        ...prevState,
-                        focused : !prevState.focused,
-                        content: '',
-                        pendingAPICall: false
-                    }
+                this.setState(response => {
+                    this.resetStateHandler()
                 })
             })
             .catch((error) => {
@@ -85,18 +108,18 @@ class HoxSubmit extends Component {
         })
     }
 
-    onClickCancelHandler = () => {
-        this.setState(prevState =>{
-            return {
-                ...prevState,
-                focused : !prevState.focused,
-                content: '',
-                errors: {},
-                image: undefined,
-                file: undefined
-            }
-        })
-    }
+    // onClickCancelHandler = () => {
+    //     this.setState(prevState =>{
+    //         return {
+    //             ...prevState,
+    //             focused : !prevState.focused,
+    //             content: '',
+    //             errors: {},
+    //             image: undefined,
+    //             file: undefined
+    //         }
+    //     })
+    // }
 
 
     render() {
@@ -126,7 +149,7 @@ class HoxSubmit extends Component {
                     <button
                         className="btn btn-light"
                         disabled={this.state.pendingAPICall}
-                        onClick={this.onClickCancelHandler}>
+                        onClick={this.resetStateHandler}>
                         Cancel
                     </button>
                 </div>
