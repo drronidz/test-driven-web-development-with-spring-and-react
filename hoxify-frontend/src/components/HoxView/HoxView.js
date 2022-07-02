@@ -9,6 +9,10 @@ class HoxView extends Component {
         const { user,date } = hox
         const { username, displayName, image } = user
         const relativeDate = format(date)
+        const attachmentTypeVisible =
+            hox.attachment &&
+            hox.attachment.fileType.startsWith('image')
+
         return (
             <div className="card p-2 my-2">
                 <div className="d-flex">
@@ -27,6 +31,15 @@ class HoxView extends Component {
                     </div>
                 </div>
                 <div className="pl-5"> {hox.content}</div>
+                { attachmentTypeVisible && (
+                    <div className="pl-5">
+                        <img
+                            className="img-fluid"
+                            alt="attachment"
+                            src={`/images/attachments/${hox.attachment.name}`}
+                        />
+                    </div>
+                )}
             </div>
         );
     }
