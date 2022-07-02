@@ -738,4 +738,54 @@ public class HoxControllerTest {
         ResponseEntity<Object> response = deleteHox(55, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    @Test
+    public void deleteBox_whenBoxHasAttachment_attachmentRemovedFromDB() throws IOException {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment hoxAttachment = fileService.saveAttachment(file);
+
+        Hox hox = TestTools.createValidHOX();
+        hox.setAttachment(hoxAttachment);
+        ResponseEntity<HoxVM> response = postHOX(hox, HoxVM.class);
+
+        long hoxId = response.getBody().getId();
+
+        deleteHox(hoxId, Object.class);
+
+        Optional<FileAttachment> optionalFileAttachment =
+                fileAttachmentRepository
+                        .findById(hoxAttachment.getId());
+
+        assertThat(optionalFileAttachment.isPresent()).isFalse();
+    }
+
+    @Test
+    public void deleteHox_whenHoxHasAttachment_attachmentRemovedFromStorage() throws IOException {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment hoxAttachment = fileService.saveAttachment(file);
+
+        Hox hox = TestTools.createValidHOX();
+        hox.setAttachment(hoxAttachment);
+        ResponseEntity<HoxVM> response = postHOX(hox, HoxVM.class);
+
+        long hoxId = response.getBody().getId();
+
+        deleteHox(hoxId, Object.class);
+
+        String attachmentFolderPath =
+                appConfiguration
+                        .getFullAttachmentsPath() + "/" + hoxAttachment.getName();
+
+        File storedImage = new File(attachmentFolderPath);
+
+        assertThat(storedImage.exists()).isFalse();
+    }
 }

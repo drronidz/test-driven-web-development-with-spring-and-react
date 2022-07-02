@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -28,11 +29,13 @@ public class HoxService {
     private final HoxRepository hoxRepository;
     private final FileAttachmentRepository fileAttachmentRepository;
     private final UserService userService;
+    private final FileService fileService;
 
-    public HoxService(HoxRepository hoxRepository, FileAttachmentRepository fileAttachmentRepository, UserService userService) {
+    public HoxService(HoxRepository hoxRepository, FileAttachmentRepository fileAttachmentRepository, UserService userService, FileService fileService) {
         this.hoxRepository = hoxRepository;
         this.fileAttachmentRepository = fileAttachmentRepository;
         this.userService = userService;
+        this.fileService = fileService;
     }
 
 //    public void save(Hox hox) {
@@ -121,7 +124,11 @@ public class HoxService {
                 criteriaBuilder.greaterThan(root.get("id"), id));
     }
 
-    public void deleteHox(long id) {
+    public void deleteHox(long id) throws IOException {
+        Hox hox = hoxRepository.getOne(id);
+        if (hox.getAttachment() != null) {
+            fileService.deleteAttachmentImage(hox.getAttachment().getName());
+        }
         hoxRepository.deleteById(id);
     }
 }
