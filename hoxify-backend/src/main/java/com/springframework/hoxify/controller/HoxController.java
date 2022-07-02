@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -95,6 +96,7 @@ public class HoxController {
     }
 
     @DeleteMapping("/hoxes/{id:[0-9]+}")
+    @PreAuthorize("@hoxSecurityService.isAllowedToDelete(#id, principal)")
     GenericResponse deleteHox(@PathVariable long id) {
         hoxService.deleteHox(id);
         return new GenericResponse("Hox is removed");

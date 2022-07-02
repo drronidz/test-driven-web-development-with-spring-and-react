@@ -717,4 +717,25 @@ public class HoxControllerTest {
 
         assertThat(hoxInDB.isPresent()).isFalse();
     }
+
+    @Test
+    public void deleteHox_whenHoxIsOwnedByAnotherUser_receiveForbidden() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+
+        User userOwner = userService.save(TestTools.createValidUser("hox-owner"));
+
+        Hox hox = hoxService.save(userOwner, TestTools.createValidHOX());
+
+        ResponseEntity<Object> response = deleteHox(hox.getId(), Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    public void deleteHox_whenHoxDoesNotExist_receiveForbidden() {
+        userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<Object> response = deleteHox(55, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 }
