@@ -120,4 +120,8 @@ public class HoxService {
                 ->
                 criteriaBuilder.greaterThan(root.get("id"), id));
     }
+
+    public void deleteHox(long id) {
+        hoxRepository.deleteById(id);
+    }
 }

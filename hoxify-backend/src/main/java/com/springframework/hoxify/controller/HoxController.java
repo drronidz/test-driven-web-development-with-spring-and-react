@@ -12,6 +12,7 @@ import com.springframework.hoxify.model.Hox;
 import com.springframework.hoxify.model.User;
 import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.shared.CurrentUser;
+import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.view.HoxVM;
 import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +92,12 @@ public class HoxController {
                         .map(HoxVM::new)
                         .collect(Collectors.toList())
         ));
+    }
+
+    @DeleteMapping("/hoxes/{id:[0-9]+}")
+    GenericResponse deleteHox(@PathVariable long id) {
+        hoxService.deleteHox(id);
+        return new GenericResponse("Hox is removed");
     }
 
 //    @GetMapping("/users/{username}/hoxes/{id:[0-9]+}")

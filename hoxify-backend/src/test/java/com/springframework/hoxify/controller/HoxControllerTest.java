@@ -11,6 +11,7 @@ import com.springframework.hoxify.repository.HoxRepository;
 import com.springframework.hoxify.service.FileService;
 import com.springframework.hoxify.service.HoxService;
 import com.springframework.hoxify.service.UserService;
+import com.springframework.hoxify.shared.GenericResponse;
 import com.springframework.hoxify.tools.TestPage;
 import com.springframework.hoxify.tools.TestTools;
 import com.springframework.hoxify.view.HoxVM;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -155,6 +157,11 @@ public class HoxControllerTest {
     private <T> ResponseEntity<T> getNewHoxCountUser(long hoxId, String username, ParameterizedTypeReference<T> responseType) {
         String path = "/api/1.0/users/" + username + "/hoxes/" + hoxId + "?direction=after&count=true";
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> deleteHox(long hoxId, Class<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_HOXES + "/" + hoxId, 
+                HttpMethod.DELETE, null, responseType);
     }
 
     @After
@@ -668,5 +675,46 @@ public class HoxControllerTest {
                         new ParameterizedTypeReference<Map<String, Long>>() {});
 
         assertThat(response.getBody().get("count")).isEqualTo(1);
+    }
+
+    // DELETE
+
+
+    @Test
+    public void deleteHox_whenUserIsUnauthorized_receiveUnauthorized() {
+        ResponseEntity<Object> response = deleteHox(555, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    public void deleteHox_whenUserIsAuthorized_receiveOK() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<Object> response = deleteHox(hox.getId(), Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void deleteHox_whenUserIsAuthorized_receiveGenericResponse() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = hoxService.save(user, TestTools.createValidHOX());
+
+        ResponseEntity<GenericResponse> response = deleteHox(hox.getId(), GenericResponse.class);
+        assertThat(response.getBody().getMessage()).isNotNull();
+    }
+
+    @Test
+    public void deleteHox_whenUserIsAuthorized_hoxIsRemovedFromDB() {
+        User user = userService.save(TestTools.createValidUser("user1"));
+        authenticate("user1");
+        Hox hox = hoxService.save(user, TestTools.createValidHOX());
+
+        deleteHox(hox.getId(), Object.class);
+        Optional<Hox> hoxInDB = hoxRepository.findById(hox.getId());
+
+        assertThat(hoxInDB.isPresent()).isFalse();
     }
 }
