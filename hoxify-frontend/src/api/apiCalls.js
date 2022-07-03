@@ -70,3 +70,7 @@ export const postHoxFile = file => {
     return axios.post('/api/1.0/hoxes/upload', file)
 }
 
+export const deleteHox = hoxId => {
+    return axios.delete('/api/1.0/hoxes/' + hoxId)
+}
+

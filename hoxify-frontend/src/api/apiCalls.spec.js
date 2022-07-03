@@ -164,4 +164,14 @@ describe('apiCalls', () => {
             expect(path).toBe('/api/1.0/hoxes/upload')
         });
     });
+
+    describe('deleteHox', () => {
+        it('calls /api/1.0/hoxes/5 when hox id param provided is 5', () => {
+            const mockDelete = jest.fn()
+            axios.delete = mockDelete
+            apiCalls.deleteHox(5)
+            const path = mockDelete.mock.calls[0][0]
+            expect(path).toBe('/api/1.0/hoxes/5')
+        });
+    });
 })
