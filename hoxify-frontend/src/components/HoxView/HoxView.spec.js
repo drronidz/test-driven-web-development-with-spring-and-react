@@ -2,7 +2,27 @@ import React from "react";
 import {render} from '@testing-library/react'
 import HoxView from "./HoxView";
 import {MemoryRouter} from 'react-router-dom'
+import { Provider } from 'react-redux'
+import { createStore} from "redux";
+import authReducer from "../../redux/authReducer";
 
+const loggedInStateUserOne = {
+    id: 1,
+    username: 'user1',
+    displayName: 'display1',
+    image: 'profile.png',
+    password: 'AZerty12',
+    isLoggedIn: true
+}
+
+const loggedInStateUserTwo = {
+    id: 2,
+    username: 'user2',
+    displayName: 'display2',
+    image: 'profile2.png',
+    password: 'AZerty34',
+    isLoggedIn: true
+}
 
 const hoxWithoutAttachment = {
     id: 10,
@@ -45,13 +65,16 @@ const hoxWithPDFAttachment = {
     }
 }
 
-const setup = (hox = hoxWithoutAttachment) => {
+const setup = (hox = hoxWithoutAttachment, state = loggedInStateUserOne) => {
     const oneMinute = 60 * 1000
     hox.date = new Date(new Date() - oneMinute)
+    const store = createStore(authReducer, state)
     return render(
-        <MemoryRouter>
-            <HoxView hox={hoxWithoutAttachment}/>
-        </MemoryRouter>)
+        <Provider store={store}>
+            <MemoryRouter>
+                <HoxView hox={hoxWithoutAttachment}/>
+            </MemoryRouter>
+        </Provider>)
 }
 
 describe('HoxView' , () => {
@@ -100,6 +123,16 @@ describe('HoxView' , () => {
             expect(attachmentImage.src).toContain(
                 '/images/attachments/' + hoxWithAttachment.attachment.name
             )
+        });
+
+        it('displays delete button when hox owned by logged in user', () => {
+            const { container } = setup()
+            expect(container.querySelector('button')).toBeInTheDocument()
+        });
+
+        it('does not display delete button when hox is not owned by logged in user', () => {
+            const { container } = setup(hoxWithoutAttachment, loggedInStateUserTwo)
+            expect(container.querySelector('button')).not.toBeInTheDocument()
         });
     })
 })
