@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import * as apiCalls from '../../api/apiCalls'
 import Spinner from "../Spinner/Spinner";
 import HoxView from "../HoxView/HoxView";
+import Modal from "../Modal/Modal";
 
 class HoxFeed extends Component {
     state = {
@@ -108,7 +109,7 @@ class HoxFeed extends Component {
                     onClick={!this.state.isLoadingOldHoxes && this.onClickLoadMoreHandler}>
                     {this.state.isLoadingOldHoxes ? <Spinner/> : 'Load More'}
                 </div>}
-
+                <Modal visible={true}/>
             </div>)
     }
 }
