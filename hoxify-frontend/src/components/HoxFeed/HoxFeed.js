@@ -28,6 +28,18 @@ class HoxFeed extends Component {
         clearInterval(this.counter)
     }
 
+    onClickDeleteHox = (hox) => {
+        this.setState({
+            hoxToBeDeleted: hox
+        })
+    }
+
+    onClickModalCancel = () => {
+        this.setState({
+            hoxToBeDeleted : undefined
+        })
+    }
+
     checkCountHandler = () => {
         const hoxes = this.state.page.content
         let topHoxId
@@ -101,7 +113,10 @@ class HoxFeed extends Component {
                     </div>
                 )}
                 {this.state.page.content.map(hox => {
-                    return <HoxView key={hox.id} hox={hox}/>
+                    return <HoxView key={hox.id}
+                                    hox={hox}
+                                    onClickDelete={() => this.onClickDeleteHox(hox)}
+                    />
                 })}
 
                 {!this.state.page.last &&
@@ -109,7 +124,15 @@ class HoxFeed extends Component {
                     onClick={!this.state.isLoadingOldHoxes && this.onClickLoadMoreHandler}>
                     {this.state.isLoadingOldHoxes ? <Spinner/> : 'Load More'}
                 </div>}
-                <Modal visible={true}/>
+                <Modal
+                    visible={this.state.hoxToBeDeleted && true}
+                    onClickCancel={this.onClickModalCancel}
+                    body={
+                        this.state.hoxToBeDeleted &&
+                        `Are you sure to delete ${this.state.hoxToBeDeleted.content} ?`}
+                    title="Delete!"
+                    okButton="Delete Hox"
+                />
             </div>)
     }
 }

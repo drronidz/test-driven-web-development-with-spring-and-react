@@ -490,5 +490,74 @@ describe('HoxFeed', () => {
                 expect(queryByText('Load More')).toBeInTheDocument()
             })
         })
+        it('displays modal when clicking delete on hox', async () => {
+            apiCalls.loadHoxes =
+                jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadNewHoxCount =
+                jest
+                    .fn()
+                    .mockResolvedValue({ data: { count: 1 } })
+
+            const { queryByTestId, container } = setup()
+            await waitFor(() => {
+                const deleteButton = container.querySelectorAll('button')[0]
+                fireEvent.click(deleteButton)
+            })
+
+
+            const modalRootDiv = queryByTestId('modal-root')
+            expect(modalRootDiv).toHaveClass('modal fade d-block show')
+        });
+
+        it('hides modal when clicking cancel', async () => {
+            apiCalls.loadHoxes =
+                jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadNewHoxCount =
+                jest
+                    .fn()
+                    .mockResolvedValue({ data: { count: 1 } })
+
+            const { queryByTestId, container, queryByText } = setup()
+            await waitFor(() => {
+                const deleteButton = container.querySelectorAll('button')[0]
+                fireEvent.click(deleteButton)
+                fireEvent.click(queryByText('Cancel'))
+            })
+
+
+            const modalRootDiv = queryByTestId('modal-root')
+            expect(modalRootDiv).not.toHaveClass('d-block show')
+        });
+
+        it('displays modal with information about the action', async () => {
+            apiCalls.loadHoxes =
+                jest
+                    .fn()
+                    .mockResolvedValue(mockSuccessGetHoxesFirstOfMultiPage)
+
+            apiCalls.loadNewHoxCount =
+                jest
+                    .fn()
+                    .mockResolvedValue({ data: { count: 1 } })
+
+            const { queryByTestId, container, queryByText } = setup()
+
+            await waitFor(() => {
+                const deleteButton = container.querySelectorAll('button')[0]
+                fireEvent.click(deleteButton)
+
+                const message = queryByText(`
+                Are you sure to delete 'This is the latest hox'?`)
+
+                expect(message).toBeInTheDocument()
+            })
+
+        });
     });
 })

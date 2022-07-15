@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 
 class HoxView extends Component {
     render() {
-        const { hox } = this.props
+        const { hox, onClickDelete } = this.props
         const { user,date } = hox
         const { id, username, displayName, image } = user
         const relativeDate = format(date)
@@ -33,7 +33,8 @@ class HoxView extends Component {
                         <span className="text-black-50"> - </span>
                         <span className="text-black-50">{relativeDate}</span>
                         {isOwnedByLoggedInUser && (
-                            <button className="btn btn-outline-danger btn-sm">
+                            <button className="btn btn-outline-danger btn-sm"
+                                    onClick={onClickDelete}>
                                 <i className="far fa-trash-alt" />
                             </button>
                         )}
